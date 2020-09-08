@@ -1,0 +1,6 @@
+*.js
+temp.json
+temp2.json
+./test.ts
+node_modules
+config.json
