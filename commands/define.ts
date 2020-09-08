@@ -1,7 +1,7 @@
 import { Message as MessageSock, MessageEmbed } from 'discord.js';
 import { Command } from '../command';
 import CommandHandler from '../command-handler';
-import { capitalize, getColorByPriority, getDefinedMsg, getHighMsg, MessagePriority, setMessage } from '../utils';
+import { capitalize, getColorByPriority, getDefinedMsg, getHighMsg, getMedMsg, MessagePriority, setMessage } from '../utils';
 import axios from 'axios';
 import config from '../config.json';
 
@@ -52,7 +52,6 @@ class DefineCmd extends Command {
       defs = this.formatDefs(defs, word);
       if (examples.length) examples = this.formatExamples(examples, word);
       const message = this.getDefinitionDisplay(word, defs, examples);
-      message.setFooter(
       message.setFooter(`\u2022 ${Date.now() - timeNow}ms`);
       msgSock.channel.send(message);
     }
@@ -64,6 +63,15 @@ class DefineCmd extends Command {
     if (res.status > 200) {
       msgSock.channel.send(
         getHighMsg('Error', res.data)
+      )
+      return undefined;
+    }
+    const data = res.data as string[]|DefinitionData[];
+    if (typeof res.data[0] == 'string') {
+      // Only extract the first 5 suggestions
+      const words = data.slice(0, 5).join('\u2002\n')
+      msgSock.channel.send(
+        getMedMsg('Not Found', `The word: "${word}" was not found.\n\n**Suggestions**\n${words}`)
       )
       return undefined;
     }
