@@ -7,11 +7,11 @@ import config from '../config.json';
 
 
 type DefinitionText = [string, string|{ t: string; }[][]];
-export type SenseObj       = { sn: string; dt: DefinitionText };
+type SenseObj       = { sn: string; dt: DefinitionText };
 type PseqObj        = ['sense', SenseObj];
 type SenseArray     = ['sense'|'pseq', SenseObj|PseqObj[] ];
 
-export interface DefinitionData {
+interface DefinitionData {
   def: [{ sseq: SenseArray[][] }];
 }
 
@@ -38,13 +38,14 @@ class DefineCmd extends Command {
   async exec(handler: CommandHandler, msgSock: MessageSock, word: string) {
     if (word.length < 4) {
       msgSock.channel.send(
-        setMessage('Word Length Too Short', MessagePriority.MEDIUM,
+        getMedMsg(
+          'Word Length Too Short',
           'Sorry, but I can only define words longer than **3** \
-          characters.')
+          characters.'
+        )
       )
       return;
     }
-
     const timeNow = Date.now();
     const data = await this.getDefinition(msgSock, word);
     if (data) {
@@ -61,20 +62,15 @@ class DefineCmd extends Command {
   async getDefinition(msgSock: MessageSock, word: string) {
     const res = await this.dictionary.get(`${word}?key=${config.apiKeys.dictionary}`);
     if (res.status > 200) {
-      msgSock.channel.send(
-        getHighMsg('Error', res.data)
-      )
+      msgSock.channel.send(getHighMsg('Error', res.data));
       return undefined;
     }
-    const data = res.data as string[]|DefinitionData[];
     if (typeof res.data[0] == 'string') {
-      // Only extract the first 5 suggestions
-      const words = data.slice(0, 5).join('\n\u2002\u2002')
       msgSock.channel.send(
-        getMedMsg(
-          'Not Found',
-          `The word: "${word}" was not found.\n\n**Suggestions**\n\u2002\u2002${words}`)
-      )
+        getMedMsg('Not Found',
+          `The word: "${word}" was not found. \
+           \n\n**Suggestions**${this.getSuggestionDisplay(res.data as string[])}`
+      ))
       return undefined;
     }
     return res.data as DefinitionData[];
@@ -105,10 +101,16 @@ class DefineCmd extends Command {
   }
 
 
+  getSuggestionDisplay(suggestions: string[]) {
+    // TODO - Create two MessageEmbed{} fields that show up to 10 words.
+    return `\n\u2002\u2002${suggestions.slice(0, 5).join('\n\u2002\u2002')}`
+  }
+
+
   formatDefs(defs: string[][], word: string) {
     return defs.map(v => (
       this.formatLines(v.map(vv => (
-        this.emphasize(word, capitalize(this.filterMarkup(vv)))
+        this.emphasize(word, capitalize(this._filterMarkup(vv)))
       ))
     )));
   }
@@ -116,7 +118,7 @@ class DefineCmd extends Command {
 
   formatExamples(examples: string[], word: string) {
     return this.formatLines(examples.map(v => (
-      this.emphasize(word, capitalize(this.filterMarkup(v)))
+      this.emphasize(word, capitalize(this._filterMarkup(v)))
     )))
   }
 
@@ -206,7 +208,7 @@ class DefineCmd extends Command {
   }
 
 
-  filterMarkup(definition: string) {
+  private _filterMarkup(definition: string) {
     let filtered =
       definition
         .replace(this._colonEx, '')
