@@ -44,24 +44,19 @@ class DefineCmd extends Command {
       )
       return;
     }
-    const test = 'any of a family (Nephropidae and especially Homarus americanus) of large edible marine decapod crustaceans that have stalked eyes, a pair of large claws, and a long abdomen and that include species from coasts on both sides of the North Atlantic and from the Cape of Good Hope'
-    msgSock.channel.send(
-      new MessageEmbed()
-        .setTitle('Test')
-        .setDescription('**1.**\n' + this.formatParagraph(test, 60))
-    )
-    // const timeNow = Date.now();
-    // const data = await this.getDefinition(msgSock, word);
-    // if (data) {
-    //   let [defs, examples] = this.extractDefinitions(data);
-    //   defs = this.formatDefs(defs, word);
-    //   if (examples.length) examples = this.formatExamples(examples, word);
-    //   const message = this.getDefinitionDisplay(word, defs, examples);
-    //   message.setFooter(
-    //     `\nMerriam Webster Dictionary \u2022 ${Date.now() - timeNow}ms`
-    //   );
-    //   msgSock.channel.send(message);
-    // }
+
+    const timeNow = Date.now();
+    const data = await this.getDefinition(msgSock, word);
+    if (data) {
+      let [defs, examples] = this.extractDefinitions(data);
+      defs = this.formatDefs(defs, word);
+      if (examples.length) examples = this.formatExamples(examples, word);
+      const message = this.getDefinitionDisplay(word, defs, examples);
+      message.setFooter(
+        `\nMerriam Webster Dictionary \u2022 ${Date.now() - timeNow}ms`
+      );
+      msgSock.channel.send(message);
+    }
   }
 
 
@@ -137,12 +132,11 @@ class DefineCmd extends Command {
     let newPara = '';
     let offset = 0;
     for (let i = 0; i < lines; i++) {
-      const pos = (len * i) - offset;
+      const pos = (len * i) + offset;
       const indexOfWord = para.substr(pos, len).lastIndexOf(' ');
-      const phrase = para.substr(pos, indexOfWord).trim();
-      console.log(phrase.length - 60);
-      // offset = phrase.length - 60;
-      newPara += `\u2002\u2002${phrase}\n`
+      const phrase = para.substr(pos, indexOfWord)
+      offset += phrase.length - len;
+      newPara += `\u2002\u2002${phrase.trim()}\n`
       if (i + 1 == lines) newPara += `\u2002\u2002${para.split(phrase)[1].trim()}`
     }
     return newPara;
