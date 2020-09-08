@@ -69,9 +69,11 @@ class DefineCmd extends Command {
     const data = res.data as string[]|DefinitionData[];
     if (typeof res.data[0] == 'string') {
       // Only extract the first 5 suggestions
-      const words = data.slice(0, 5).join('\u2002\n')
+      const words = data.slice(0, 5).join('\n\u2002\u2002')
       msgSock.channel.send(
-        getMedMsg('Not Found', `The word: "${word}" was not found.\n\n**Suggestions**\n${words}`)
+        getMedMsg(
+          'Not Found',
+          `The word: "${word}" was not found.\n\n**Suggestions**\n\u2002\u2002${words}`)
       )
       return undefined;
     }
