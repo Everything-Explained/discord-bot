@@ -85,7 +85,7 @@ class DefineCmd extends Command {
       defStr += `**${i + 1}.)**\n${defs[i].join('\n')}\n\n`
     }
     if (examples.length)
-      defStr += `**Examples**\n${examples.join('\n\n')}`
+      defStr += `**Examples**\n${examples.join('\n')}`
     ;
     return (
       new MessageEmbed()
@@ -137,9 +137,9 @@ class DefineCmd extends Command {
     const lineLength = 60;
     const formattedStrings = defs.map(v => {
       if (v.length > lineLength) {
-        return this.formatParagraph(v, lineLength);
+        return `\u2002**:** ${this.formatParagraph(v, lineLength).trim()}`
       }
-      return `\u2002\u2002${v}`
+      return `\u2002**:** ${v}`
     })
     return formattedStrings;
   }
