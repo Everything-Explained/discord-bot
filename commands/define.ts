@@ -7,11 +7,11 @@ import config from '../config.json';
 
 
 type DefinitionText = [string, string|{ t: string; }[][]];
-type SenseObj       = { sn: string; dt: DefinitionText };
+export type SenseObj       = { sn: string; dt: DefinitionText };
 type PseqObj        = ['sense', SenseObj];
 type SenseArray     = ['sense'|'pseq', SenseObj|PseqObj[] ];
 
-interface DefinitionData {
+export interface DefinitionData {
   def: [{ sseq: SenseArray[][] }];
 }
 
@@ -53,8 +53,7 @@ class DefineCmd extends Command {
       if (examples.length) examples = this.formatExamples(examples, word);
       const message = this.getDefinitionDisplay(word, defs, examples);
       message.setFooter(
-        `\nMerriam Webster Dictionary \u2022 ${Date.now() - timeNow}ms`
-      );
+      message.setFooter(`\u2022 ${Date.now() - timeNow}ms`);
       msgSock.channel.send(message);
     }
   }
@@ -74,16 +73,25 @@ class DefineCmd extends Command {
 
   getDefinitionDisplay(word: string, defs: string[][], examples: string[]) {
     const border = '▔▔▔▔▔▔▔▔▔▔▔▔'
+    const border = '▔▔▔▔▔▔▔▔▔▔▔▔▔'
     let defStr = '';
     for (let i = 0; i < defs.length; i++) {
-      defStr += `**${i + 1}.)**\n${defs[i].join('\n\n')}\n\n`
+      if (i > 1) break;
+      defStr += `**${i + 1}.)**\n${defs[i].join('\n')}\n\n`
     }
-
+    if (examples.length)
+      defStr += `**Examples**\n${examples.join('\n\n')}`
+    ;
     return (
       new MessageEmbed()
-        .setTitle(capitalize(word))
+        .setTitle(`${border}\n${capitalize(word)}`)
+        .setAuthor(
+          'Merriam Webster Dictionary',
+          'https://merriam-webster.com/assets/mw/static/app-css-images/logos/MW_logo@2x8kb.png',
+          `https://www.merriam-webster.com/dictionary/${word}`
+        )
         .setColor(getColorByPriority(MessagePriority.LOW))
-        .setDescription(`${border}\n${defStr}`)
+        .setDescription(`${defStr}`)
     );
   }
 
