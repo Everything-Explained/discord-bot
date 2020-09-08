@@ -72,7 +72,6 @@ class DefineCmd extends Command {
 
 
   getDefinitionDisplay(word: string, defs: string[][], examples: string[]) {
-    const border = '▔▔▔▔▔▔▔▔▔▔▔▔'
     const border = '▔▔▔▔▔▔▔▔▔▔▔▔▔'
     let defStr = '';
     for (let i = 0; i < defs.length; i++) {
@@ -182,7 +181,7 @@ class DefineCmd extends Command {
     // Set definition text
     sense[0] = obj.dt[0][1];
     // Get all examples if they exist at all
-    if (obj.dt[1] && typeof obj.dt[1][1] !== 'string') {
+    if (obj.dt[1] && obj.dt[1][0] != 'ca' && typeof obj.dt[1][1] !== 'string') {
       sense[1] = obj.dt[1][1].map(v => v.t);
     }
     return sense;
