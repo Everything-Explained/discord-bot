@@ -2,7 +2,7 @@ import { Message } from "discord.js";
 import { Command } from "../command";
 import CommandHandler from "../command-handler";
 import requireFresh from 'import-fresh';
-import { setMessage } from "../utils";
+import { getMedMsg, setMessage } from "../utils";
 
 class ReloadCmd extends Command {
   constructor() { super('reload'); }
@@ -17,7 +17,12 @@ class ReloadCmd extends Command {
         return;
       }
     }
-    msg.channel.send('Command Not Found.');
+    msg.channel.send(
+      getMedMsg(
+        'Invalid Command',
+        `"**${reloadCmd}**" is not a valid command. Did you spell it incorrectly?`
+      )
+    );
   }
 }
 export = ReloadCmd;
