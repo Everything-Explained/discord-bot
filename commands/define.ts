@@ -53,7 +53,7 @@ class DefineCmd extends Command {
       defs = this.formatDefs(defs, word);
       if (examples.length) examples = this.formatExamples(examples, word);
       const message = this.getDefinitionDisplay(word, defs, examples);
-      message.setFooter(`\u2022 ${Date.now() - timeNow}ms`);
+      message.setFooter(`▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔\n\u2022 ${Date.now() - timeNow}ms`);
       msgSock.channel.send(message);
     }
   }
