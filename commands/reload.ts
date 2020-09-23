@@ -1,27 +1,29 @@
 import { Message } from "discord.js";
 import { Command } from "../command";
 import CommandHandler from "../command-handler";
-import requireFresh from 'import-fresh';
-import { getMedMsg, setMessage } from "../utils";
+import importFresh from 'import-fresh';
+import { Bot, Role } from "../bot";
+import TemplateCommand from "./template";
 
 class ReloadCmd extends Command {
-  constructor() { super('reload'); }
+  constructor(public bot: Bot) { super('reload', Role.Admin); }
 
-  exec(handler: CommandHandler, msg: Message, reloadCmd: string) {
+  _instruction(handler: CommandHandler, msg: Message, reloadCmd: string) {
     const commands = handler.commands;
-    for (let i = 0, l = commands.length; i < l; i++) {
-      if (commands[i].name == reloadCmd) {
-        const EditedCommand = requireFresh(`./${reloadCmd}.js`) as any;
-        commands[i] = new EditedCommand();
-        msg.channel.send(setMessage('Command Reloaded!'))
-        return;
-      }
-    }
-    msg.channel.send(
-      getMedMsg(
-        'Invalid Command',
-        `"**${reloadCmd}**" is not a valid command. Did you spell it incorrectly?`
+    const cmdIndex = commands.findIndex(c => c.name == reloadCmd)
+    ;
+    if (!~cmdIndex) return void msg.channel.send(
+      this.bot.setMedMsg(
+        `\`${reloadCmd}\` is not a valid command. Did you \
+         spell it incorrectly?`,
+        `Reload Error`
       )
+    );
+    commands[cmdIndex] =
+      new (importFresh(`./${reloadCmd}.js`) as typeof TemplateCommand)(this.bot)
+    ;
+    msg.channel.send(
+      this.bot.setLowMsg(`\`;${reloadCmd}\` command reloaded!`)
     );
   }
 }

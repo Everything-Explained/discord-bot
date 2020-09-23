@@ -1,15 +1,15 @@
 import { Message } from 'discord.js';
+import { Bot, Role } from '../bot';
 import { Command } from '../command';
 import CommandHandler from '../command-handler';
-import { getLowMsg, MessagePriority, setMessage } from '../utils';
 
 class PingCmd extends Command {
-  constructor() {
-    super('ping');
+  constructor(public bot: Bot) {
+    super('ping', Role.Admin);
   }
-  exec(handler: CommandHandler, msg: Message) {
+  _instruction(handler: CommandHandler, msg: Message) {
     msg.channel.send(
-      getLowMsg(`Ping Delay`, `▔▔▔▔▔▔\n\u2002:clock3: ${msg.client.ws.ping}ms`)
+      this.bot.setLowMsg(`\u2002:clock3: ${msg.client.ws.ping}ms`)
     );
   }
 }

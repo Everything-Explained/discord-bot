@@ -4,6 +4,7 @@ import CommandHandler from '../command-handler';
 import { capitalize, getColorByPriority, getDefinedMsg, getHighMsg, getMedMsg, MessagePriority, setMessage } from '../utils';
 import axios from 'axios';
 import config from '../config.json';
+import { Bot, Role } from '../bot';
 
 
 type DefinitionText = [string, string|{ t: string; }[][]];
@@ -30,12 +31,12 @@ class DefineCmd extends Command {
   })
 
 
-  constructor() {
-    super('define');
+  constructor(public bot: Bot) {
+    super('define', Role.Everyone);
   }
 
 
-  async exec(handler: CommandHandler, msgSock: MessageSock, word: string) {
+  async _instruction(handler: CommandHandler, msgSock: MessageSock, word: string) {
     if (word.length < 4) {
       msgSock.channel.send(
         getMedMsg(
@@ -43,7 +44,7 @@ class DefineCmd extends Command {
           'Sorry, but I can only define words longer than **3** \
           characters.'
         )
-      )
+      );
       return;
     }
     const timeNow = Date.now();
@@ -70,7 +71,7 @@ class DefineCmd extends Command {
         getMedMsg('Not Found',
           `The word: "${word}" was not found. \
            \n\n**Suggestions**${this.getSuggestionDisplay(res.data as string[])}`
-      ))
+      ));
       return undefined;
     }
     return res.data as DefinitionData[];
@@ -78,11 +79,11 @@ class DefineCmd extends Command {
 
 
   getDefinitionDisplay(word: string, defs: string[][], examples: string[]) {
-    const border = '▔▔▔▔▔▔▔▔▔▔▔▔▔'
+    const border = '▔▔▔▔▔▔▔▔▔▔▔▔▔';
     let defStr = '';
     for (let i = 0; i < defs.length; i++) {
       if (i > 1) break;
-      defStr += `**${i + 1}.)**\n${defs[i].join('\n')}\n\n`
+      defStr += `**${i + 1}.)**\n${defs[i].join('\n')}\n\n`;
     }
     if (examples.length)
       defStr += `**Examples**\n${examples.join('\n')}`
@@ -103,7 +104,7 @@ class DefineCmd extends Command {
 
   getSuggestionDisplay(suggestions: string[]) {
     // TODO - Create two MessageEmbed{} fields that show up to 10 words.
-    return `\n\u2002\u2002${suggestions.slice(0, 5).join('\n\u2002\u2002')}`
+    return `\n\u2002\u2002${suggestions.slice(0, 5).join('\n\u2002\u2002')}`;
   }
 
 
@@ -119,15 +120,15 @@ class DefineCmd extends Command {
   formatExamples(examples: string[], word: string) {
     return this.formatLines(examples.map(v => (
       this.emphasize(word, capitalize(this._filterMarkup(v)))
-    )))
+    )));
   }
 
 
   emphasize(word: string, def: string) {
-    const wordEx = new RegExp(`(${word}|${capitalize(word)})[a-z]*`, 'g')
+    const wordEx = new RegExp(`(${word}|${capitalize(word)})[a-z]*`, 'g');
     const foundWord = def.match(wordEx);
     if (foundWord) {
-      return def.replace(foundWord[0], `*${foundWord[0]}*`)
+      return def.replace(foundWord[0], `*${foundWord[0]}*`);
     }
     return def;
   }
@@ -137,10 +138,10 @@ class DefineCmd extends Command {
     const lineLength = 60;
     const formattedStrings = defs.map(v => {
       if (v.length > lineLength) {
-        return `\u2002**:** ${this.formatParagraph(v, lineLength).trim()}`
+        return `\u2002**:** ${this.formatParagraph(v, lineLength).trim()}`;
       }
-      return `\u2002**:** ${v}`
-    })
+      return `\u2002**:** ${v}`;
+    });
     return formattedStrings;
   }
 
@@ -153,10 +154,10 @@ class DefineCmd extends Command {
     for (let i = 0; i < lines; i++) {
       const pos = (len * i) + offset;
       const indexOfWord = para.substr(pos, len).lastIndexOf(' ');
-      const phrase = para.substr(pos, indexOfWord)
+      const phrase = para.substr(pos, indexOfWord);
       offset += phrase.length - len;
-      newPara += `\u2002\u2002${phrase.trim()}\n`
-      if (i + 1 == lines) newPara += `\u2002\u2002${para.split(phrase)[1].trim()}`
+      newPara += `\u2002\u2002${phrase.trim()}\n`;
+      if (i + 1 == lines) newPara += `\u2002\u2002${para.split(phrase)[1].trim()}`;
     }
     return newPara;
   }
@@ -167,7 +168,7 @@ class DefineCmd extends Command {
     const definitions: string[][] = [];
     const defs = data[0].def[0].sseq;
 
-    for (let def of defs) {
+    for (const def of defs) {
       const localDefs: string[] = [];
       def.forEach(v => {
         const obj = this._getSense(v);
@@ -188,8 +189,8 @@ class DefineCmd extends Command {
   private _getSense(field: SenseArray) {
     if (field[0] != 'sense') return undefined;
     const obj = field[1] as SenseObj;
-    const sense: [string, string[]] = ['', [] as string[]];
-
+    const sense: [string, string[]] = ['', [] as string[]]
+    ;
     // Set definition text
     sense[0] = obj.dt[0][1];
     // Get all examples if they exist at all
@@ -215,16 +216,14 @@ class DefineCmd extends Command {
         .replace(this._segEx, '; ')
         .replace(this._markupEx, '')
     ;
-
     if (filtered.includes('|')) {
       const first = filtered.split(' ').reduce((pv, v) => {
         return (
           pv += v.includes('|') ? v.split('|')[0] : ''
         );
-      }, '')
+      }, '');
       filtered = filtered.replace(this._orEx, first);
     }
-
     return filtered;
   }
 }

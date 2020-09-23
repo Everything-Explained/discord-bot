@@ -4,3 +4,5 @@ temp2.json
 ./test.ts
 node_modules
 config.json
+test.ts
+store

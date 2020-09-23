@@ -1,12 +1,32 @@
-import { Message } from 'discord.js';
+import { GuildMember, Message } from 'discord.js';
+import { Bot, Role } from './bot';
 import CommandHandler from './command-handler';
 
+
+
 export abstract class Command {
-  name: string;
 
-  constructor(name: string) {
-    this.name = name;
+  abstract bot: Bot;
+
+
+  constructor(
+    public name: string,
+    public role: Role,
+  ) {}
+
+
+  protected abstract _instruction(handler: CommandHandler, msg: Message, ...args: string[]): void;
+
+
+  exec(handler: CommandHandler, msg: Message, ...args: string[]) {
+    if (!this.bot.hasValidRole(msg.member!, this.role)) {
+      return void msg.channel.send(
+        this.bot.setMedMsg(
+          `Sorry <@${msg.member?.id}>, you do not have the necessary \
+          permissions use this command.`
+        )
+      );
+    }
+    this._instruction(handler, msg, ...args);
   }
-
-  abstract exec(handler: CommandHandler, msg: Message, ...args: string[]): void;
 }

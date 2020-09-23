@@ -1,13 +1,15 @@
 import { Message } from 'discord.js';
+import { Bot, Role } from '../bot';
 import { Command } from '../command';
 import CommandHandler from '../command-handler';
-import { MessagePriority, setMessage } from '../utils';
 
-class NameCmd extends Command {
-  constructor() {
-    super('name');
+class TemplateCommand extends Command {
+  constructor(public bot: Bot) {
+    super('name', Role.Everyone);
   }
-  exec(handler: CommandHandler, msg: Message) {}
+  _instruction(handler: CommandHandler, msg: Message) {
+    // Implementation goes here
+  }
 }
 
-export = NameCmd;
+export = TemplateCommand;
