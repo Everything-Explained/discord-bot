@@ -21,9 +21,9 @@ interface DefinitionData {
 class DefineCmd extends Command {
 
   private _markupEx = /\{\/?[a-z]{2}\}|\{[adlink_]+\||\{[a-z]{2}|\}|\|\}|\|\|/g;
-  private _segEx = /\s\{sx\|/g;
-  private _colonEx = /\{bc\}/g;
-  private _orEx = /[a-z]+\|[a-z]+/g;
+  private _segEx    = /\s\{sx\|/g;
+  private _colonEx  = /\{bc\}/g;
+  private _orEx     = /[a-z]+\|[a-z]+/g;
 
   dictionary = axios.create({
     baseURL: 'https://dictionaryapi.com/api/v3/references/collegiate/json/',

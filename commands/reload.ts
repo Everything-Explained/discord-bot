@@ -8,23 +8,34 @@ import TemplateCommand from "./template";
 class ReloadCmd extends Command {
   constructor(public bot: Bot) { super('reload', Role.Admin); }
 
-  _instruction(handler: CommandHandler, msg: Message, reloadCmd: string) {
+  _instruction(handler: CommandHandler, msg: Message, cmd: string) {
+    console.log('helo reload');
     const commands = handler.commands;
-    const cmdIndex = commands.findIndex(c => c.name == reloadCmd)
+    const cmdIndex = commands.findIndex(c => c.name == cmd)
     ;
     if (!~cmdIndex) return void msg.channel.send(
       this.bot.setMedMsg(
-        `\`${reloadCmd}\` is not a valid command. Did you \
+        `\`${cmd}\` is not a valid command. Did you \
          spell it incorrectly?`,
         `Reload Error`
       )
     );
     commands[cmdIndex] =
-      new (importFresh(`./${reloadCmd}.js`) as typeof TemplateCommand)(this.bot)
+      new (importFresh(`./${cmd}.js`) as typeof TemplateCommand)(this.bot)
     ;
     msg.channel.send(
-      this.bot.setLowMsg(`\`;${reloadCmd}\` command reloaded!`)
+      this.bot.setLowMsg(`\`;${cmd}\` command reloaded!`)
     );
   }
+
+  // private _isReloadingSpecial(msg: Message, cmd: string) {
+  //   if (cmd == '+popreperr') {
+  //     this.bot.populateErrorResponses();
+  //     msg.channel.send(
+  //       this.bot.setLowMsg(`\`${cmd}\` internal reloaded.`)
+  //     );
+  //     return true;
+  //   }
+  // }
 }
 export = ReloadCmd;
