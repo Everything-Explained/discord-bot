@@ -1,4 +1,4 @@
-import { Client, GuildMember, Message, MessageEmbed } from "discord.js";
+import { Client, GuildMember, Message, MessageAttachment, MessageEmbed } from "discord.js";
 import importFresh from "import-fresh";
 import { Command } from "./command";
 import CommandHandler from "./command-handler";
@@ -9,6 +9,9 @@ import TestCmd from "./commands/test";
 import config from './config.json';
 import axios from 'axios';
 import WallCmd from "./commands/wall";
+import { SAI } from "@noumenae/sai";
+import { RepErrorCode } from "@noumenae/sai/dist/database/repository";
+import { saiErrorResponses } from "./constants";
 
 
 
@@ -28,18 +31,22 @@ export enum Role {
 
 export class Bot {
 
-  private _client     : Client;
-  private _commands   : Command[] = [];
-  private _cmdHandler : CommandHandler;
+  private _client        : Client;
+  private _commands      : Command[] = [];
+  private _cmdHandler    : CommandHandler;
 
   // In order: matches alias, role, and channel mentions
   private _mentionEx = /<@!?&?#?\d+>/g;
-  private _attachEx  = /.*\.md$/g;
   private _channels  = config.bot.access_channels;
+  private _sai       = new SAI('./store', (res) => this._onSaiInit(res))
 
 
   get Embed() {
     return MessageEmbed;
+  }
+
+  get sai() {
+    return this._sai;
   }
 
 
@@ -52,21 +59,78 @@ export class Bot {
   }
 
 
+  private _onSaiInit(resp: Error|null) {
+    //
+  }
+
+
 
   private async _onMessage(msg: Message) {
     if (!this.isBotMentioned(msg.content)) {
       return this._cmdHandler.find(msg);
     }
-    const attachments = msg.attachments.array();
-    if (attachments.length) {
-      const file = await axios.get(attachments[0].url);
-      console.log(file.data);
-      msg.delete();
-    }
+    if (this._isQuestionEntry(msg)) return;
+  }
 
-    // if (!this._channels.length) {
-    //   msg.channel;
-    // }
+
+  private _isQuestionEntry(msg: Message) {
+    if (!this.hasValidRole(msg.member!, Role.Admin)) return false
+    ;
+    const attachments = msg.attachments.array();
+    if (!attachments.length) return false;
+    this._parseQuestionFile(msg, attachments[0]);
+    return true;
+  }
+
+
+  private async _parseQuestionFile(msg: Message, attachment: MessageAttachment) {
+    if (attachment.url.substr(-3) != '.md') {
+      msg.delete();
+      return void (
+        msg.channel.send(
+          this.setMedMsg('Your file is missing the `.md` extension.')
+        )
+      );
+    }
+    const file = await axios.get(attachment.url);
+    msg.delete()
+    ;
+    this._sai.addQuestion(file.data)
+      .then(res => {
+        const editType =
+          res.dateCreated < res.dateEdited
+            ? 'Edited'
+            : 'Added'
+        ;
+        msg.channel.send(
+          this.setLowMsg(
+          'Please save the following id to your file, so you can ' +
+          'edit it in the \nfuture.\n\n' +
+          `Add \`editId: ${res.ids[0]}\` to your local file header.`,
+          `Question ${editType} Successfully`
+          )
+        );
+      })
+      .catch((err: RepErrorCode|NodeJS.ErrnoException) => {
+        if (typeof err == 'number') {
+          const errMsg = saiErrorResponses[err];
+          if (errMsg) {
+            return void msg.channel.send(this.setMedMsg(saiErrorResponses[err]));
+          }
+          return void msg.channel.send(
+            this.setMedMsg(
+              `An unknown error occurred while adding the question:\n\`\nError Code: ${err}\``
+            )
+          );
+        }
+        msg.channel.send(
+          this.setHighMsg(
+            `Error Trace:\n\`\`\`\n${err.message}\n\`\`\``,
+            'Error While Saving'
+          )
+        );
+      })
+    ;
   }
 
 
