@@ -12,6 +12,8 @@ class ReloadCmd extends Command {
     const commands = handler.commands;
     const cmdIndex = commands.findIndex(c => c.name == cmd)
     ;
+    if (this._isReloadingSpecial(msg, cmd)) return
+    ;
     if (!~cmdIndex) return void msg.channel.send(
       this.bot.setMedMsg(
         `\`${cmd}\` is not a valid command. Did you \
@@ -27,14 +29,13 @@ class ReloadCmd extends Command {
     );
   }
 
-  // private _isReloadingSpecial(msg: Message, cmd: string) {
-  //   if (cmd == '+popreperr') {
-  //     this.bot.populateErrorResponses();
-  //     msg.channel.send(
-  //       this.bot.setLowMsg(`\`${cmd}\` internal reloaded.`)
-  //     );
-  //     return true;
-  //   }
-  // }
+
+  private _isReloadingSpecial(msg: Message, cmd: string) {
+    if (cmd == '+bot') {
+      this.bot.reset(msg);
+      return true;
+    }
+    return false;
+  }
 }
 export = ReloadCmd;

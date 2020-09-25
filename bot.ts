@@ -1,4 +1,4 @@
-import { Client, GuildMember, Message, MessageAttachment, MessageEmbed } from "discord.js";
+import { Client, GuildMember, Message, MessageEmbed } from "discord.js";
 import importFresh from "import-fresh";
 import { Command } from "./command";
 import CommandHandler from "./command-handler";
@@ -7,11 +7,8 @@ import PingCmd from "./commands/ping";
 import ReloadCmd from "./commands/reload";
 import TestCmd from "./commands/test";
 import config from './config.json';
-import axios from 'axios';
 import WallCmd from "./commands/wall";
 import { SAI } from "@noumenae/sai";
-import { RepErrorCode } from "@noumenae/sai/dist/database/repository";
-import { saiErrorResponses } from "./constants";
 import QuestionCmd from "./commands/question";
 import LevelCmd from "./commands/level";
 
@@ -21,7 +18,6 @@ import LevelCmd from "./commands/level";
 
 class Bot {
 
-  private _client        : Client;
   private _commands      : Command[] = [];
   private _cmdHandler    : CommandHandler;
 
@@ -29,6 +25,10 @@ class Bot {
   private _mentionEx = /<@!?&?#?\d+>/g;
   private _channels  = config.bot.access_channels;
   private _sai       = new SAI('./store', (res) => this._onSaiInit(res))
+
+  private _messageHandler = (msg: Message) => {
+    return void this._onMessage(msg);
+  };
 
 
   get Embed() {
@@ -40,20 +40,19 @@ class Bot {
   }
 
 
-  constructor() {
-    this._client = new Client();
-    this._client.on('message', (msg) => this._onMessage(msg));
+  constructor(private _client: Client, private _resetCallback: () => void, reset = false) {
+    this._client.on('message', this._messageHandler);
     this._populateCommands();
     this._cmdHandler = new CommandHandler(this._commands);
-    this._client.login(config.apiKeys.discord);
+    if (!reset)
+      this._client.login(config.apiKeys.discord)
+    ;
   }
 
 
   private _onSaiInit(resp: Error|null) {
     //
   }
-
-
 
   private async _onMessage(msg: Message) {
     if (!this.isBotMentioned(msg.content)) {
@@ -118,6 +117,16 @@ class Bot {
   }
 
 
+  reset(msg: Message) {
+    msg.channel.send(this.setHighMsg(
+      '',
+      'Resetting Bot'
+    ));
+    this._client.off('message', this._messageHandler);
+    this._resetCallback();
+  }
+
+
   reloadCmdHandler() {
     this._populateCommands();
     this._cmdHandler = new CommandHandler(this._commands);
@@ -178,7 +187,9 @@ class Bot {
     return this.setMessage(title, Bot.MessagePriority.HIGH, content);
   }
 
+
 }
+
 
 
 namespace Bot {

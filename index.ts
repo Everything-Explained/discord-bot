@@ -1,4 +1,4 @@
-import Discord from 'discord.js';
+import Discord, { Client } from 'discord.js';
 import importFresh from 'import-fresh';
 import CommandHandler from './command-handler';
 import DefineCmd from './commands/define';
@@ -9,7 +9,15 @@ import { MessagePriority, setMessage } from './utils';
 import config from './config.json';
 import Bot from './bot';
 
-new Bot();
+
+
+const client = new Client();
+let bot = new Bot(client, resetBot);
+
+function resetBot() {
+  bot = new (importFresh('./bot.js') as typeof Bot)(client, resetBot, true);
+}
+
 
 // const client = new Discord.Client();
 
