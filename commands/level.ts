@@ -50,9 +50,14 @@ class LevelCmd extends Command {
     ]
   ]
 
+
+
   constructor(public bot: Bot) {
     super('level', Bot.Role.Everyone);
   }
+
+
+
   _instruction(handler: CommandHandler, msg: Message, level: string) {
     const realLevel = this._levels.length - 1;
     const levelNum = +level
@@ -73,6 +78,7 @@ class LevelCmd extends Command {
     return void this._listAllLevels(msg);
   }
 
+
   private _listAllLevels(msg: Message) {
     this._levels.forEach((v, i) => {
       const [color, text] = v;
@@ -80,7 +86,7 @@ class LevelCmd extends Command {
         .setTitle(`Level ${color}`)
         .setColor(this.bot.colorFromLevel(color))
         .setDescription(text)
-      ), i * 1000);
+      ), i * 2000);
     });
   }
 }
