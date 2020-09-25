@@ -16,21 +16,9 @@ import QuestionCmd from "./commands/question";
 
 
 
-export enum MessagePriority {
-  LOW,
-  MEDIUM,
-  HIGH,
-  BLACK,
-}
-
-export enum Role {
-  Everyone = '@everyone',
-  Admin = 'Admin',
-}
 
 
-
-export class Bot {
+class Bot {
 
   private _client        : Client;
   private _commands      : Command[] = [];
@@ -76,7 +64,7 @@ export class Bot {
 
 
   private _isQuestionEntry(msg: Message) {
-    if (!this.hasValidRole(msg.member!, Role.Admin)) return false
+    if (!this.hasValidRole(msg.member!, Bot.Role.Admin)) return false
     ;
     const attachments = msg.attachments.array();
     if (!attachments.length) return false
@@ -110,7 +98,7 @@ export class Bot {
     return void msg.channel.send(new this.Embed()
       .setTitle(resp.title)
       .setDescription(`${resp.answer}\u200b\n\u200b`)
-      .setColor(this.colorFromPriority(MessagePriority.LOW))
+      .setColor(this.colorFromPriority(Bot.MessagePriority.LOW))
       .setFooter(`by ${resp.authors[0]}`)
     );
   }
@@ -134,7 +122,7 @@ export class Bot {
   }
 
 
-  hasValidRole(member: GuildMember, role: Role) {
+  hasValidRole(member: GuildMember, role: Bot.Role) {
     if (member.id == config.bot.creatorId) {
       return true;
     }
@@ -161,17 +149,23 @@ export class Bot {
   }
 
 
-  colorFromPriority(priority: MessagePriority) {
-    if (MessagePriority.LOW    == priority) return '#57E0B8';
-    if (MessagePriority.MEDIUM == priority) return '#FFD200';
-    if (MessagePriority.HIGH   == priority) return '#FF559D';
-    if (MessagePriority.BLACK  == priority) return '#6C00FF';
+  colorFromPriority(priority: Bot.MessagePriority) {
+    const p = Bot.MessagePriority;
+    if (p.LOW    == priority) return '#57E0B8';
+    if (p.MEDIUM == priority) return '#FFD200';
+    if (p.HIGH   == priority) return '#FF559D';
+    if (p.BLACK  == priority) return '#6C00FF';
     return '#aaaaaa';
   }
 
 
+  colorFromLevel(level: Bot.MessageLevel) {
+    return this._lvlColors[level];
+  }
+
+
   setLowMsg(content: string, title = '') {
-    return this.setMessage(title, MessagePriority.LOW, content);
+    return this.setMessage(title, Bot.MessagePriority.LOW, content);
   }
 
   setMedMsg(content: string, title = '') {
@@ -179,7 +173,41 @@ export class Bot {
   }
 
   setHighMsg(content: string, title = '') {
-    return this.setMessage(title, MessagePriority.HIGH, content);
+    return this.setMessage(title, Bot.MessagePriority.HIGH, content);
   }
 
 }
+
+
+namespace Bot {
+  export enum MessageLevel {
+    WHITE = 0,
+    BLUE,
+    GREEN,
+    YELLOW,
+    ORANGE,
+    RED,
+    BROWN,
+    GRAY,
+    BLACK
+  }
+
+  export enum MessagePriority {
+    LOW = 0,
+    MEDIUM,
+    HIGH,
+    BLACK,
+  }
+
+  export enum Role {
+    Everyone = '@everyone',
+    Admin = 'Admin',
+  }
+}
+
+
+
+
+export = Bot;
+
+

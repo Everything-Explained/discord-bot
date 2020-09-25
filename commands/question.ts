@@ -1,5 +1,5 @@
 import { Message } from 'discord.js';
-import { Bot, Role } from '../bot';
+import Bot from '../bot';
 import { Command } from '../command';
 import CommandHandler from '../command-handler';
 import axios from 'axios';
@@ -14,7 +14,7 @@ class QuestionCmd extends Command {
 
 
   constructor(public bot: Bot) {
-    super('question', Role.Admin);
+    super('question', Bot.Role.Admin);
   }
 
 

@@ -7,7 +7,7 @@ import ReloadCmd from './commands/reload';
 import TestCmd from './commands/test';
 import { MessagePriority, setMessage } from './utils';
 import config from './config.json';
-import { Bot } from './bot';
+import Bot from './bot';
 
 new Bot();
 

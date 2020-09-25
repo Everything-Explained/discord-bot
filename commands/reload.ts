@@ -2,11 +2,11 @@ import { Message } from "discord.js";
 import { Command } from "../command";
 import CommandHandler from "../command-handler";
 import importFresh from 'import-fresh';
-import { Bot, Role } from "../bot";
+import Bot from "../bot";
 import TemplateCommand from "./template";
 
 class ReloadCmd extends Command {
-  constructor(public bot: Bot) { super('reload', Role.Admin); }
+  constructor(public bot: Bot) { super('reload', Bot.Role.Admin); }
 
   _instruction(handler: CommandHandler, msg: Message, cmd: string) {
     console.log('helo reload');

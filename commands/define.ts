@@ -4,7 +4,7 @@ import CommandHandler from '../command-handler';
 import { capitalize, getColorByPriority, getDefinedMsg, getHighMsg, getMedMsg, MessagePriority, setMessage } from '../utils';
 import axios from 'axios';
 import config from '../config.json';
-import { Bot, Role } from '../bot';
+import Bot from '../bot';
 
 
 type DefinitionText = [string, string|{ t: string; }[][]];
@@ -32,7 +32,7 @@ class DefineCmd extends Command {
 
 
   constructor(public bot: Bot) {
-    super('define', Role.Everyone);
+    super('define', Bot.Role.Everyone);
   }
 
 

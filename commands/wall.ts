@@ -1,12 +1,12 @@
 import { Message } from 'discord.js';
-import { Bot, Role } from '../bot';
+import Bot from '../bot';
 import { Command } from '../command';
 import CommandHandler from '../command-handler';
 
 class WallCmd extends Command {
 
   constructor(public bot: Bot) {
-    super('wall', Role.Everyone);
+    super('wall', Bot.Role.Everyone);
   }
 
 

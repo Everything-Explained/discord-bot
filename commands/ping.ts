@@ -1,11 +1,11 @@
 import { Message } from 'discord.js';
-import { Bot, Role } from '../bot';
+import Bot from '../bot';
 import { Command } from '../command';
 import CommandHandler from '../command-handler';
 
 class PingCmd extends Command {
   constructor(public bot: Bot) {
-    super('ping', Role.Admin);
+    super('ping', Bot.Role.Admin);
   }
   _instruction(handler: CommandHandler, msg: Message) {
     msg.channel.send(

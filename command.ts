@@ -1,5 +1,5 @@
 import { GuildMember, Message } from 'discord.js';
-import { Bot, Role } from './bot';
+import Bot from './bot';
 import CommandHandler from './command-handler';
 
 
@@ -11,7 +11,7 @@ export abstract class Command {
 
   constructor(
     public name: string,
-    public role: Role,
+    public role: Bot.Role,
   ) {}
 
 
