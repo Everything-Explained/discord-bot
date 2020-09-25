@@ -70,15 +70,18 @@ class LevelCmd extends Command {
         .setColor(this.bot.colorFromLevel(levelNum))
       );
     }
+    return void this._listAllLevels(msg);
+  }
 
-    // this._levels.forEach((v, i) => {
-    //   const [color, text] = v;
-    //   setTimeout(() => msg.channel.send(new this.bot.Embed()
-    //     .setTitle(`Level ${color}`)
-    //     .setColor(this.bot.colorFromLevel(color))
-    //     .setDescription(text)
-    //   ), i * 1000);
-    // });
+  private _listAllLevels(msg: Message) {
+    this._levels.forEach((v, i) => {
+      const [color, text] = v;
+      setTimeout(() => msg.channel.send(new this.bot.Embed()
+        .setTitle(`Level ${color}`)
+        .setColor(this.bot.colorFromLevel(color))
+        .setDescription(text)
+      ), i * 1000);
+    });
   }
 }
 
