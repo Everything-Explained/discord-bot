@@ -13,6 +13,7 @@ import { SAI } from "@noumenae/sai";
 import { RepErrorCode } from "@noumenae/sai/dist/database/repository";
 import { saiErrorResponses } from "./constants";
 import QuestionCmd from "./commands/question";
+import LevelCmd from "./commands/level";
 
 
 
@@ -112,6 +113,7 @@ class Bot {
       new (importFresh('./commands/define.js'  ) as typeof DefineCmd)(this),
       new (importFresh('./commands/wall.js'    ) as typeof WallCmd)(this),
       new (importFresh('./commands/question.js') as typeof QuestionCmd)(this),
+      new (importFresh('./commands/level.js'   ) as typeof LevelCmd)(this),
     ];
   }
 
@@ -160,7 +162,7 @@ class Bot {
 
 
   colorFromLevel(level: Bot.MessageLevel) {
-    return this._lvlColors[level];
+    return Bot.levelColors[level];
   }
 
 
@@ -169,7 +171,7 @@ class Bot {
   }
 
   setMedMsg(content: string, title = '') {
-    return this.setMessage(title, MessagePriority.MEDIUM, content);
+    return this.setMessage(title, Bot.MessagePriority.MEDIUM, content);
   }
 
   setHighMsg(content: string, title = '') {
@@ -187,7 +189,7 @@ namespace Bot {
     YELLOW,
     ORANGE,
     RED,
-    BROWN,
+    CHOCOLATE,
     GRAY,
     BLACK
   }
@@ -203,6 +205,19 @@ namespace Bot {
     Everyone = '@everyone',
     Admin = 'Admin',
   }
+
+  export const levelColors = [
+    '#FEFEFE',
+    '#4FB2FF',
+    '#00D01D',
+    '#FFED56',
+    '#FFAE00',
+    '#FF4F4F',
+    '#A75E00',
+    '#888888',
+    '#000000',
+    '#6C00FF',
+  ];
 }
 
 
