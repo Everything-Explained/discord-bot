@@ -10,7 +10,7 @@ class CommandHandler {
   constructor(public commands: Command[]) {}
 
 
-  find(msg: Message): void {
+  find(msg: Message, admin = false): void {
     const cmdInfo = this._parseCommand(msg.content);
     if (!cmdInfo) return
     ;
@@ -24,7 +24,7 @@ class CommandHandler {
         )
       );
     }
-    cmd.exec(this, msg, ...args);
+    cmd.exec(this, msg, admin, ...args);
   }
 
   private _parseCommand(input: string) {

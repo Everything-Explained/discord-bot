@@ -12,6 +12,7 @@ import WallCmd from "./commands/wall";
 import { SAI } from "@noumenae/sai";
 import { RepErrorCode } from "@noumenae/sai/dist/database/repository";
 import { saiErrorResponses } from "./constants";
+import QuestionCmd from "./commands/question";
 
 
 
@@ -70,6 +71,7 @@ export class Bot {
       return this._cmdHandler.find(msg);
     }
     if (this._isQuestionEntry(msg)) return;
+    if (this._isQuestion(msg)) return;
   }
 
 
@@ -77,70 +79,51 @@ export class Bot {
     if (!this.hasValidRole(msg.member!, Role.Admin)) return false
     ;
     const attachments = msg.attachments.array();
-    if (!attachments.length) return false;
-    this._parseQuestionFile(msg, attachments[0]);
+    if (!attachments.length) return false
+    ;
+    if (attachments[0].url.substr(-3) != '.md') {
+      msg.delete();
+      return !!msg.channel.send(this.setMedMsg(
+        'Oops! :nerd: Your file is missing the `.md` extension.'
+      ));
+    }
+    msg.content = `;question ${attachments[0].url}`;
+    this._cmdHandler.find(msg, true);
     return true;
   }
 
 
-  private async _parseQuestionFile(msg: Message, attachment: MessageAttachment) {
-    if (attachment.url.substr(-3) != '.md') {
-      msg.delete();
-      return void (
-        msg.channel.send(
-          this.setMedMsg('Your file is missing the `.md` extension.')
-        )
-      );
+  private _isQuestion(msg: Message) {
+    const question = msg.content.replace(this._mentionEx, '').trim();
+    const resp = this._sai.ask(question)
+    ;
+    if (typeof resp == 'number') {
+      return void msg.channel.send(this.setMedMsg(
+        `:confused: Sorry, I don't understand that question.`
+      ));
     }
-    const file = await axios.get(attachment.url);
-    msg.delete()
-    ;
-    this._sai.addQuestion(file.data)
-      .then(res => {
-        const editType =
-          res.dateCreated < res.dateEdited
-            ? 'Edited'
-            : 'Added'
-        ;
-        msg.channel.send(
-          this.setLowMsg(
-          'Please save the following id to your file, so you can ' +
-          'edit it in the \nfuture.\n\n' +
-          `Add \`editId: ${res.ids[0]}\` to your local file header.`,
-          `Question ${editType} Successfully`
-          )
-        );
-      })
-      .catch((err: RepErrorCode|NodeJS.ErrnoException) => {
-        if (typeof err == 'number') {
-          const errMsg = saiErrorResponses[err];
-          if (errMsg) {
-            return void msg.channel.send(this.setMedMsg(saiErrorResponses[err]));
-          }
-          return void msg.channel.send(
-            this.setMedMsg(
-              `An unknown error occurred while adding the question:\n\`\nError Code: ${err}\``
-            )
-          );
-        }
-        msg.channel.send(
-          this.setHighMsg(
-            `Error Trace:\n\`\`\`\n${err.message}\n\`\`\``,
-            'Error While Saving'
-          )
-        );
-      })
-    ;
+    if (!resp) {
+      return void msg.channel.send(this.setMedMsg(
+        `:nerd: That question doesn't match anything in my knowledge-base.`
+      ));
+    }
+    return void msg.channel.send(new this.Embed()
+      .setTitle(resp.title)
+      .setDescription(`${resp.answer}\u200b\n\u200b`)
+      .setColor(this.colorFromPriority(MessagePriority.LOW))
+      .setFooter(`by ${resp.authors[0]}`)
+    );
   }
 
 
   private _populateCommands() {
     this._commands = [
-      new (importFresh('./commands/ping.js'  ) as typeof PingCmd)(this),
-      new (importFresh('./commands/reload.js') as typeof ReloadCmd)(this),
-      new (importFresh('./commands/test.js'  ) as typeof TestCmd)(this),
-      new (importFresh('./commands/define.js') as typeof DefineCmd)(this),
-      new (importFresh('./commands/wall.js'  ) as typeof WallCmd)(this),
+      new (importFresh('./commands/ping.js'    ) as typeof PingCmd)(this),
+      new (importFresh('./commands/reload.js'  ) as typeof ReloadCmd)(this),
+      new (importFresh('./commands/test.js'    ) as typeof TestCmd)(this),
+      new (importFresh('./commands/define.js'  ) as typeof DefineCmd)(this),
+      new (importFresh('./commands/wall.js'    ) as typeof WallCmd)(this),
+      new (importFresh('./commands/question.js') as typeof QuestionCmd)(this),
     ];
   }
 

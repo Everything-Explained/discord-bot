@@ -18,8 +18,8 @@ export abstract class Command {
   protected abstract _instruction(handler: CommandHandler, msg: Message, ...args: string[]): void;
 
 
-  exec(handler: CommandHandler, msg: Message, ...args: string[]) {
-    if (!this.bot.hasValidRole(msg.member!, this.role)) {
+  exec(handler: CommandHandler, msg: Message, admin = false, ...args: string[]) {
+    if (!admin && !this.bot.hasValidRole(msg.member!, this.role)) {
       return void msg.channel.send(
         this.bot.setMedMsg(
           `Sorry <@${msg.member?.id}>, you do not have the necessary \
