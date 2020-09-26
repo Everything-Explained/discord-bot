@@ -40,13 +40,13 @@ class LevelCmd extends Command {
 
   private _isEditingLevel(level: number, cmd: string|undefined, ...args: string[]) {
     if (cmd == 'text') {
-      if (this._isValidLevel(level)) return;
+      if (!this._isValidLevel(level)) return;
       const text = args.join(' ');
       this._setLevelText(level, text.trim());
       return true;
     }
     if (cmd == 'color') {
-      if (this._isValidLevel(level)) return;
+      if (!this._isValidLevel(level)) return;
       const [color] = args;
       this._setLevelColor(level, color.trim());
       return true;
