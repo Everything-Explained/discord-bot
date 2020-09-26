@@ -38,12 +38,12 @@ class LevelCmd extends Command {
   private _isEditingLevel(level: number, cmd: string|undefined, ...args: string[]) {
     if (cmd == 'text') {
       const text = args.join(' ');
-      this._setLevelText(level, text);
+      this._setLevelText(level, text.trim());
       return true;
     }
     if (cmd == 'color') {
       const [color] = args;
-      this._setLevelColor(level, color);
+      this._setLevelColor(level, color.trim());
       return true;
     }
     return false;
@@ -54,12 +54,7 @@ class LevelCmd extends Command {
     if (!text) return this.bot.sendMedMsg(
       `Whoopsie, you forgot to provide a description the level.`
     );
-    if (!text.trim()) {
-      return this.bot.sendMedMsg(
-        `Oops, you sent me an empty description for level \`${level}\``
-      );
-    }
-    this._levels[level][1] = text.trim();
+    this._levels[level][1] = text;
     const freshConfig = importFresh('../config.json') as typeof config;
     this._writeLevelConfig(freshConfig, this._levels[level], level);
   }
