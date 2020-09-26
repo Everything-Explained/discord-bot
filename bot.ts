@@ -49,6 +49,15 @@ class Bot {
     return this._cmdHandler.commands;
   }
 
+  get curContent() {
+    return this.curMsg.content;
+  }
+
+  get curChannel() {
+    return this.curMsg.channel;
+  }
+
+
 
   constructor(private _client: Client, private _resetCallback: () => void, reset = false) {
     this._client.on('message', this._messageHandler);
@@ -58,6 +67,7 @@ class Bot {
       this._client.login(config.apiKeys.discord)
     ;
   }
+
 
 
   private _onSaiInit(resp: Error|null) {
@@ -194,19 +204,19 @@ class Bot {
 
 
   sendLowMsg(content: string, title = '') {
-    return void this.curMsg.channel.send(
+    return void this.curChannel.send(
       this.setMessage(title, Bot.MessagePriority.LOW, content)
     );
   }
 
   sendMedMsg(content: string, title = '') {
-    return void this.curMsg.channel.send(
+    return void this.curChannel.send(
       this.setMessage(title, Bot.MessagePriority.MEDIUM, content)
     );
   }
 
   sendHighMsg(content: string, title = '') {
-    return void this.curMsg.channel.send(
+    return void this.curChannel.send(
       this.setMessage(title, Bot.MessagePriority.HIGH, content)
     );
   }
