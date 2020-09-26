@@ -46,14 +46,23 @@ class DefineCmd extends Command {
     const timeNow = Date.now();
     const data = await this.getDefinition(word);
     if (data) {
-      let [defs, examples] = this.extractDefinitions(data);
-      defs = this.formatDefs(defs, word)
-      ;
-      if (examples.length) examples = this.formatExamples(examples, word);
-      const message = this.getDefinitionDisplay(word, defs, examples);
-      message.setFooter(`▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔\n\u2022 ${Date.now() - timeNow}ms`)
-      ;
-      this.bot.curMsg.channel.send(message);
+      try {
+        let [defs, examples] = this.extractDefinitions(data);
+        defs = this.formatDefs(defs, word)
+        ;
+        if (examples.length) examples = this.formatExamples(examples, word);
+        const message = this.getDefinitionDisplay(word, defs, examples);
+        message.setFooter(`▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔\n\u2022 ${Date.now() - timeNow}ms`)
+        ;
+        this.bot.curMsg.channel.send(message);
+      }
+      catch (err) {
+        this.bot.sendException(
+          'The DEFINE command has *failed* spectacularly.',
+          err.message,
+          err.stack
+        );
+      }
     }
   }
 
