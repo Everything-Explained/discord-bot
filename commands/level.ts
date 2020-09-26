@@ -84,7 +84,7 @@ class LevelCmd extends Command {
         this.bot.sendMsg(text, `Level ${color}`,
           this.bot.colorFromLevel(color)
         );
-      }, i * 1500);
+      }, i * 1200);
     });
   }
 }
