@@ -56,6 +56,11 @@ class LevelCmd extends Command {
       this._isAddingLevel(level, desc.trim());
       return true;
     }
+    if (cmd == 'delete' || cmd == 'del') {
+      if (!this._isValidLevel(level)) return;
+      this._isDeletingLevel(level);
+      return true;
+    }
     return false;
   }
 
@@ -65,7 +70,7 @@ class LevelCmd extends Command {
       'Woah there, you forgot to enter the description for the level!'
     );
     const len = this._levels.length;
-    if (len != level) return this.bot.sendMedMsg(
+    if (level != len) return this.bot.sendMedMsg(
       'You can only add levels in order. The next available level that ' +
       `can be added, is \`Level ${len}\`.`
     );
@@ -74,6 +79,22 @@ class LevelCmd extends Command {
     );
     const freshConfig = importFresh('../config.json') as typeof config;
     this._writeLevelConfig(freshConfig, this._levels, level, true);
+    this._instruction(`${level}`);
+  }
+
+
+  private _isDeletingLevel(level: number) {
+    const realLen = this._levels.length - 1;
+    if (level < realLen) return this.bot.sendMedMsg(
+      'Sorry, I cannot allow you to delete any levels below ' +
+      `the current last level, which is **${realLen}**.`
+    );
+    this._levels.splice(realLen, 1);
+    const freshConfig = importFresh('../config.json') as typeof config;
+    this._writeLevelConfig(freshConfig, this._levels, level, true);
+    this.bot.sendLowMsg(
+      '', `Level ${realLen} Deleted`
+    );
   }
 
 
@@ -84,6 +105,7 @@ class LevelCmd extends Command {
     this._levels[level][1] = text;
     const freshConfig = importFresh('../config.json') as typeof config;
     this._writeLevelConfig(freshConfig, this._levels[level], level);
+    this._instruction(`${level}`);
   }
 
 
@@ -104,12 +126,13 @@ class LevelCmd extends Command {
     this._levels[level][2] = color;
     const freshConfig = importFresh('../config.json') as typeof config;
     this._writeLevelConfig(freshConfig, this._levels[level], level);
+    this._instruction(`${level}`);
   }
 
 
   private _isValidLevel(level: number) {
     const realLevel = this._levels.length - 1;
-    if (level < 0 || level > (this._levels.length - 1)) {
+    if (level < 0 || level > (realLevel)) {
       return !!this.bot.sendMedMsg(
         `Invalid Level Number: \`${level}\`` +
         `\nLevels must be in the range \`0 to ${realLevel}\``
@@ -158,7 +181,6 @@ class LevelCmd extends Command {
     else     newConfig.bot.message_levels[level] = data
     ;
     writeFileSync('./config.json', JSON.stringify(newConfig, null, 2));
-    this._instruction(`${level}`);
   }
 }
 
