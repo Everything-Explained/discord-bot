@@ -1,54 +1,16 @@
+import importFresh from 'import-fresh';
 import Bot, { MessageLevel } from '../bot';
 import { Command } from '../command';
+import config from '../config.json';
 
 
 class LevelCmd extends Command {
-
-  private _levels: [MessageLevel, string][] = [
-    [
-      MessageLevel.WHITE,
-      'Small-Talk and *day-to-day* normalcy.'
-    ],
-    [
-      MessageLevel.BLUE,
-      'Personal life review and beliefs.'
-    ],
-    [
-      MessageLevel.GREEN,
-      'On the way to considering *conspiracy theories*.'
-    ],
-    [
-      MessageLevel.YELLOW,
-      'Taking conspiracy theories down the rabbit hole; slowly but surely.'
-    ],
-    [
-      MessageLevel.ORANGE,
-      'Serious existential crisis begin to set in about topics such as: ' +
-      '`Impermanence`, `Absolute Truth`, `Infinity`, and `Duality`.'
-    ],
-    [
-      MessageLevel.RED,
-      'The **full implications** begin to set in about Orange topics, which ' +
-      'lead to a potentially *full on* existential crisis about meaninglessness.'
-    ],
-    [
-      MessageLevel.CHOCOLATE,
-      'Grace enters the conversation; paradise and perfection are shown to be ' +
-      'objective beyond existence...the subsistential way of life.'
-    ],
-    [
-      MessageLevel.GRAY,
-      'At this point, the `Absolute Magnitude` to the `Ineffable` to the `' +
-      'Zero-th level of information (including all indirect forms) become a ' +
-      'part of the conversation.'
-    ],
-    [
-      MessageLevel.BLACK,
-      'Discussions that go *beyond*, *yond*, *contra-yond*, etc...the `Ineffable`'
-    ]
-  ]
-
-
+  // Load fresh on first call
+  private _levelChanged = false;
+  private _levels =
+    (importFresh('../config.json') as typeof config)
+      .bot.message_levels as [number, string, string][]
+  ;
 
   constructor(public bot: Bot) {
     super('level', Bot.Role.Everyone);
@@ -57,6 +19,7 @@ class LevelCmd extends Command {
 
 
   _instruction(level: string) {
+    this._refreshLevels();
     const realLevel = this._levels.length - 1;
     const levelNum = +level
     ;
@@ -70,10 +33,19 @@ class LevelCmd extends Command {
       return this.bot.sendMsg(
         this._levels[levelNum][1],
         `Level ${level}`,
-        `${this.bot.colorFromLevel(levelNum)}`
+        `${this._levels[levelNum][2]}`
       );
     }
     return void this._listAllLevels();
+  }
+
+
+  private _refreshLevels() {
+    if (!this._levelChanged) return;
+    this._levels =
+      (importFresh('../config.json') as typeof config)
+        .bot.message_levels as [number, string, string][]
+    ;
   }
 
 
