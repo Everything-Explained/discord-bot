@@ -1,7 +1,5 @@
-import { Message } from 'discord.js';
 import Bot from '../bot';
 import { Command } from '../command';
-import CommandHandler from '../command-handler';
 import axios from 'axios';
 import { RepErrorCode } from '@noumenae/sai/dist/database/repository';
 import { saiErrorResponses } from '../constants';
@@ -19,19 +17,17 @@ class QuestionCmd extends Command {
 
 
 
-  async _instruction(handler: CommandHandler, msg: Message, url: string) {
+  async _instruction(url: string) {
     if (!this._urlEx.test(url)){
-      return void msg.channel.send(
-        this.bot.setMedMsg('Invalid URL for question parsing.')
-      );
+      this.bot.sendMedMsg('Invalid URL for question parsing.');
     }
     const [err, doc] = await this._getQuestionDoc(url);
     if (err) {
-      return void msg.channel.send(
+      this.bot.sendHighMsg(
         `An Error occurred while interacting with the URL:\n\`${err}\``
       );
     }
-    this._parseQuestion(msg, doc);
+    this._parseQuestion(doc);
   }
 
 
@@ -44,34 +40,34 @@ class QuestionCmd extends Command {
   }
 
 
-  private _parseQuestion(msg: Message, doc: string) {
+  private _parseQuestion(doc: string) {
     this.bot.sai.addQuestion(doc)
       .then(item => {
         const titleWord = item.dateCreated < item.dateEdited ? 'Edited' : 'Added';
-        msg.channel.send(this.bot.setLowMsg(
+        this.bot.sendLowMsg(
           `The following is your *editors* recept:\n\`editId: ${item.ids[0]}\``,
           `Question ${titleWord} Successfully!`
-        ));
+        );
       })
-      .catch(err => this._catchParseError(err, msg))
+      .catch(err => this._catchParseError(err))
     ;
   }
 
 
-  private _catchParseError(err: RepErrorCode|NodeJS.ErrnoException, msg: Message) {
+  private _catchParseError(err: RepErrorCode|NodeJS.ErrnoException) {
     if (typeof err == 'number') {
       const errMsg = saiErrorResponses[err];
       if (!errMsg) {
-        return void msg.channel.send(this.bot.setHighMsg(
+        return this.bot.sendHighMsg(
           `Code:\`${err}\``,
           'Unknown Parse Error'
-        ));
+        );
       }
-      return void msg.channel.send(this.bot.setMedMsg(errMsg));
+      return this.bot.sendMedMsg(errMsg);
     }
-    msg.channel.send(this.bot.setHighMsg(
+    this.bot.sendHighMsg(
       `Error Message:\n\`${err.message}\`\nError Trace:\n\`\`\`\n${err.stack}\n\`\`\``
-    ));
+    );
   }
 }
 

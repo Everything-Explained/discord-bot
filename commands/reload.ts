@@ -1,6 +1,4 @@
-import { Message } from "discord.js";
 import { Command } from "../command";
-import CommandHandler from "../command-handler";
 import importFresh from 'import-fresh';
 import Bot from "../bot";
 import TemplateCommand from "./template";
@@ -8,31 +6,26 @@ import TemplateCommand from "./template";
 class ReloadCmd extends Command {
   constructor(public bot: Bot) { super('reload', Bot.Role.Admin); }
 
-  _instruction(handler: CommandHandler, msg: Message, cmd: string) {
-    const commands = handler.commands;
+  _instruction(cmd: string) {
+    const commands = this.bot.commands;
     const cmdIndex = commands.findIndex(c => c.name == cmd)
     ;
-    if (this._isReloadingSpecial(msg, cmd)) return
+    if (this._isReloadingSpecial(cmd)) return
     ;
-    if (!~cmdIndex) return void msg.channel.send(
-      this.bot.setMedMsg(
-        `\`${cmd}\` is not a valid command. Did you \
-         spell it incorrectly?`,
-        `Reload Error`
-      )
+    if (!~cmdIndex) return this.bot.sendMedMsg(
+      `\`${cmd}\` is not a valid command. Did you spell it incorrectly?`,
+      `Reload Error`
     );
     commands[cmdIndex] =
       new (importFresh(`./${cmd}.js`) as typeof TemplateCommand)(this.bot)
     ;
-    msg.channel.send(
-      this.bot.setLowMsg(`\`;${cmd}\` command reloaded!`)
-    );
+    this.bot.sendLowMsg(`\`;${cmd}\` command reloaded!`);
   }
 
 
-  private _isReloadingSpecial(msg: Message, cmd: string) {
+  private _isReloadingSpecial(cmd: string) {
     if (cmd == '+bot') {
-      this.bot.reset(msg);
+      this.bot.reset();
       return true;
     }
     return false;

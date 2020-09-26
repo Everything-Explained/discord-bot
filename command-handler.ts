@@ -1,4 +1,5 @@
 import { Message } from "discord.js";
+import Bot from "./bot";
 import { Command } from "./command";
 import { getMedMsg } from "./utils";
 
@@ -7,24 +8,24 @@ import { getMedMsg } from "./utils";
 
 
 class CommandHandler {
-  constructor(public commands: Command[]) {}
+  constructor(public commands: Command[], private _bot: Bot) {}
 
 
-  find(msg: Message, admin = false): void {
-    const cmdInfo = this._parseCommand(msg.content);
+  find(content: string, admin = false): void {
+    const cmdInfo = this._parseCommand(content);
     if (!cmdInfo) return
     ;
     const [cmdName, ...args] = cmdInfo;
     const cmd = this.commands.find(c => c.name == cmdName);
     if (!cmd) {
-      return void msg.channel.send(
+      return void this._bot.curMsg.channel.send(
         getMedMsg('Command Not Found',
           'Make sure the command exists within the command list \
           and that you have the sufficient **Role** to access to the command.'
         )
       );
     }
-    cmd.exec(this, msg, admin, ...args);
+    cmd.exec(this, admin, ...args);
   }
 
   private _parseCommand(input: string) {

@@ -1,10 +1,9 @@
-import { Message as MessageSock, MessageEmbed } from 'discord.js';
+import { MessageEmbed } from 'discord.js';
 import { Command } from '../command';
-import CommandHandler from '../command-handler';
-import { capitalize, getColorByPriority, getDefinedMsg, getHighMsg, getMedMsg, MessagePriority, setMessage } from '../utils';
+import { capitalize, getColorByPriority } from '../utils';
 import axios from 'axios';
 import config from '../config.json';
-import Bot from '../bot';
+import Bot, { MessagePriority } from '../bot';
 
 
 type DefinitionText = [string, string|{ t: string; }[][]];
@@ -36,42 +35,42 @@ class DefineCmd extends Command {
   }
 
 
-  async _instruction(handler: CommandHandler, msgSock: MessageSock, word: string) {
+  async _instruction(word: string) {
     if (word.length < 4) {
-      msgSock.channel.send(
-        getMedMsg(
-          'Word Length Too Short',
-          'Sorry, but I can only define words longer than **3** \
-          characters.'
-        )
+      this.bot.sendMedMsg(
+        'Sorry, but I can only define words longer than **3** characters.',
+        'Word Length Too Short'
       );
       return;
     }
     const timeNow = Date.now();
-    const data = await this.getDefinition(msgSock, word);
+    const data = await this.getDefinition(word);
     if (data) {
       let [defs, examples] = this.extractDefinitions(data);
-      defs = this.formatDefs(defs, word);
+      defs = this.formatDefs(defs, word)
+      ;
       if (examples.length) examples = this.formatExamples(examples, word);
       const message = this.getDefinitionDisplay(word, defs, examples);
-      message.setFooter(`▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔\n\u2022 ${Date.now() - timeNow}ms`);
-      msgSock.channel.send(message);
+      message.setFooter(`▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔\n\u2022 ${Date.now() - timeNow}ms`)
+      ;
+      this.bot.curMsg.channel.send(message);
     }
   }
 
 
-  async getDefinition(msgSock: MessageSock, word: string) {
-    const res = await this.dictionary.get(`${word}?key=${config.apiKeys.dictionary}`);
+  async getDefinition(word: string) {
+    const res = await this.dictionary.get(`${word}?key=${config.apiKeys.dictionary}`)
+    ;
     if (res.status > 200) {
-      msgSock.channel.send(getHighMsg('Error', res.data));
+      this.bot.sendHighMsg(res.data, 'Error');
       return undefined;
     }
     if (typeof res.data[0] == 'string') {
-      msgSock.channel.send(
-        getMedMsg('Not Found',
-          `The word: "${word}" was not found. \
-           \n\n**Suggestions**${this.getSuggestionDisplay(res.data as string[])}`
-      ));
+      this.bot.sendMedMsg(
+        `The word: "${word}" was not found.` +
+        `\n\n**Suggestions**${this.getSuggestionDisplay(res.data as string[])}`,
+        'Not Found',
+      );
       return undefined;
     }
     return res.data as DefinitionData[];

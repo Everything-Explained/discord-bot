@@ -1,7 +1,5 @@
-import { Message } from 'discord.js';
 import Bot, { MessageLevel } from '../bot';
 import { Command } from '../command';
-import CommandHandler from '../command-handler';
 
 
 class LevelCmd extends Command {
@@ -58,35 +56,35 @@ class LevelCmd extends Command {
 
 
 
-  _instruction(handler: CommandHandler, msg: Message, level: string) {
+  _instruction(level: string) {
     const realLevel = this._levels.length - 1;
     const levelNum = +level
     ;
     if (!isNaN(levelNum)) {
       if (levelNum < 0 || levelNum > realLevel) {
-        return void msg.channel.send(this.bot.setMedMsg(
+        return this.bot.sendMedMsg(
           `Invalid Level Number: \`${levelNum}\`` +
           `\nLevels must be in the range \`0 to ${realLevel}\``
-        ));
+        );
       }
-      return void msg.channel.send(new this.bot.Embed()
-        .setTitle(`Level ${level}`)
-        .setDescription(this._levels[levelNum][1])
-        .setColor(this.bot.colorFromLevel(levelNum))
+      return this.bot.sendMsg(
+        this._levels[levelNum][1],
+        `Level ${level}`,
+        `${this.bot.colorFromLevel(levelNum)}`
       );
     }
-    return void this._listAllLevels(msg);
+    return void this._listAllLevels();
   }
 
 
-  private _listAllLevels(msg: Message) {
+  private _listAllLevels() {
     this._levels.forEach((v, i) => {
       const [color, text] = v;
-      setTimeout(() => msg.channel.send(new this.bot.Embed()
-        .setTitle(`Level ${color}`)
-        .setColor(this.bot.colorFromLevel(color))
-        .setDescription(text)
-      ), i * 2000);
+      setTimeout(() => {
+        this.bot.sendMsg(text, `Level ${color}`,
+          this.bot.colorFromLevel(color)
+        );
+      }, i * 1500);
     });
   }
 }

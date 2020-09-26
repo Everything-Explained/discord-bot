@@ -1,7 +1,5 @@
-import { Message } from 'discord.js';
 import Bot from '../bot';
 import { Command } from '../command';
-import CommandHandler from '../command-handler';
 
 class WallCmd extends Command {
 
@@ -10,23 +8,21 @@ class WallCmd extends Command {
   }
 
 
-  _instruction(handler: CommandHandler, msg: Message, size: string) {
+  _instruction(size: string) {
     let lines = +size;
     if (isNaN(lines)) {
-      return void msg.channel.send(
-        this.bot.setMedMsg(
-          `\`${size}\` is an invalid size for the wall.`
-        )
+      return this.bot.sendMedMsg(
+        `\`${size}\` is an invalid size for the wall.`
       );
     }
-    if (lines < 1) return void msg.channel.send(
-      this.bot.setMedMsg('Wall size **must** be `greater than 0`')
+    if (lines < 1) return this.bot.sendMedMsg(
+      'Wall size **must** be `greater than 0`'
     );
     let wall = '';
     while (lines--) {
       wall += '‎‎\u200B\n';
     }
-    msg.channel.send(wall);
+    this.bot.curMsg.channel.send(wall);
   }
 
 

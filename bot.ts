@@ -1,4 +1,4 @@
-import { Client, GuildMember, Message, MessageEmbed } from "discord.js";
+import { Client, DMChannel, GuildMember, Message, MessageEmbed, NewsChannel, TextChannel } from "discord.js";
 import importFresh from "import-fresh";
 import { Command } from "./command";
 import CommandHandler from "./command-handler";
@@ -13,23 +13,29 @@ import QuestionCmd from "./commands/question";
 import LevelCmd from "./commands/level";
 
 
-
+type DiscordChannel = TextChannel|DMChannel|NewsChannel;
 
 
 class Bot {
-
-  private _commands      : Command[] = [];
-  private _cmdHandler    : CommandHandler;
+  private _commands   : Command[] = [];
+  private _cmdHandler : CommandHandler;
 
   // In order: matches alias, role, and channel mentions
   private _mentionEx = /<@!?&?#?\d+>/g;
   private _channels  = config.bot.access_channels;
-  private _sai       = new SAI('./store', (res) => this._onSaiInit(res))
+  private _sai       = new SAI('./store', (res) => this._onSaiInit(res));
 
   private _messageHandler = (msg: Message) => {
     return void this._onMessage(msg);
   };
 
+
+  /* TODO - This might cause async issues down the road.
+
+    If this value is ever changed during an async operation, then
+    we'll have to fallback to passing the Message object around.
+  */
+ curMsg!: Message;
 
   get Embed() {
     return MessageEmbed;
@@ -39,11 +45,15 @@ class Bot {
     return this._sai;
   }
 
+  get commands() {
+    return this._cmdHandler.commands;
+  }
+
 
   constructor(private _client: Client, private _resetCallback: () => void, reset = false) {
     this._client.on('message', this._messageHandler);
     this._populateCommands();
-    this._cmdHandler = new CommandHandler(this._commands);
+    this._cmdHandler = new CommandHandler(this._commands, this);
     if (!reset)
       this._client.login(config.apiKeys.discord)
     ;
@@ -55,8 +65,9 @@ class Bot {
   }
 
   private async _onMessage(msg: Message) {
-    if (!this.isBotMentioned(msg.content)) {
-      return this._cmdHandler.find(msg);
+    this.curMsg = msg;
+    if (!this.isBotMentioned()) {
+      return this._cmdHandler.find(msg.content);
     }
     if (this._isQuestionEntry(msg)) return;
     if (this._isQuestion(msg)) return;
@@ -71,12 +82,12 @@ class Bot {
     ;
     if (attachments[0].url.substr(-3) != '.md') {
       msg.delete();
-      return !!msg.channel.send(this.setMedMsg(
+      this.sendMedMsg(
         'Oops! :nerd: Your file is missing the `.md` extension.'
-      ));
+      );
     }
     msg.content = `;question ${attachments[0].url}`;
-    this._cmdHandler.find(msg, true);
+    this._cmdHandler.find(msg.content, true);
     return true;
   }
 
@@ -86,14 +97,14 @@ class Bot {
     const resp = this._sai.ask(question)
     ;
     if (typeof resp == 'number') {
-      return void msg.channel.send(this.setMedMsg(
+      return this.sendMedMsg(
         `:confused: Sorry, I don't understand that question.`
-      ));
+      );
     }
     if (!resp) {
-      return void msg.channel.send(this.setMedMsg(
+      return this.sendMedMsg(
         `:nerd: That question doesn't match anything in my knowledge-base.`
-      ));
+      );
     }
     return void msg.channel.send(new this.Embed()
       .setTitle(resp.title)
@@ -117,11 +128,8 @@ class Bot {
   }
 
 
-  reset(msg: Message) {
-    msg.channel.send(this.setHighMsg(
-      '',
-      'Resetting Bot'
-    ));
+  reset() {
+    this.sendHighMsg('', 'Resetting Bot');
     this._client.off('message', this._messageHandler);
     this._resetCallback();
   }
@@ -129,7 +137,7 @@ class Bot {
 
   reloadCmdHandler() {
     this._populateCommands();
-    this._cmdHandler = new CommandHandler(this._commands);
+    this._cmdHandler = new CommandHandler(this._commands, this);
   }
 
 
@@ -143,9 +151,9 @@ class Bot {
   }
 
 
-  isBotMentioned(content: string) {
+  isBotMentioned() {
     const botId = `<@!${config.bot.id}>`;
-    if (!content.includes(botId)) return false;
+    if (!this.curMsg.content.includes(botId)) return false;
     return true;
   }
 
@@ -156,6 +164,16 @@ class Bot {
         .setTitle(title)
         .setDescription(description)
         .setColor(this.colorFromPriority(priority))
+    );
+  }
+
+
+  sendMsg(description: string, title: string, color: string) {
+    this.curMsg.channel.send(
+      new this.Embed()
+        .setTitle(title)
+        .setDescription(description)
+        .setColor(color)
     );
   }
 
@@ -175,16 +193,22 @@ class Bot {
   }
 
 
-  setLowMsg(content: string, title = '') {
-    return this.setMessage(title, Bot.MessagePriority.LOW, content);
+  sendLowMsg(content: string, title = '') {
+    return void this.curMsg.channel.send(
+      this.setMessage(title, Bot.MessagePriority.LOW, content)
+    );
   }
 
-  setMedMsg(content: string, title = '') {
-    return this.setMessage(title, Bot.MessagePriority.MEDIUM, content);
+  sendMedMsg(content: string, title = '') {
+    return void this.curMsg.channel.send(
+      this.setMessage(title, Bot.MessagePriority.MEDIUM, content)
+    );
   }
 
-  setHighMsg(content: string, title = '') {
-    return this.setMessage(title, Bot.MessagePriority.HIGH, content);
+  sendHighMsg(content: string, title = '') {
+    return void this.curMsg.channel.send(
+      this.setMessage(title, Bot.MessagePriority.HIGH, content)
+    );
   }
 
 
