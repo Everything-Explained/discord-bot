@@ -221,6 +221,14 @@ class Bot {
     );
   }
 
+  sendException(description: string, message: string, stack: string) {
+    this.sendHighMsg(
+      `${description}\n\n**Message**\n\`\`\`${message}\`\`\`\n` +
+      `**Stack Trace**\n\`\`\`${stack}\`\`\``,
+      'Fatal Error Occurred'
+    );
+  }
+
 
 }
 
