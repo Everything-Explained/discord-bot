@@ -11,6 +11,7 @@ import WallCmd from "./commands/wall";
 import { SAI } from "@noumenae/sai";
 import QuestionCmd from "./commands/question";
 import LevelCmd from "./commands/level";
+import DictionaryCmd from "./commands/dictionary";
 
 
 type DiscordChannel = TextChannel|DMChannel|NewsChannel;
@@ -134,6 +135,7 @@ class Bot {
       new (importFresh('./commands/wall.js'    ) as typeof WallCmd)(this),
       new (importFresh('./commands/question.js') as typeof QuestionCmd)(this),
       new (importFresh('./commands/level.js'   ) as typeof LevelCmd)(this),
+      new (importFresh('./commands/dictionary.js'   ) as typeof DictionaryCmd)(this),
     ];
   }
 
