@@ -5,23 +5,27 @@ class DictionaryCmd extends Command {
 
 
   constructor(public bot: Bot) {
-    super('dict', Bot.Role.Everyone);
+    super('dictionary', Bot.Role.Everyone);
   }
 
 
   _instruction(cmd: string|undefined, word: string|undefined, index: string|undefined) {
-    if (!cmd) return this.bot.sendMedMsg(
-      'This command requires a sub-command to operate.'
-    );
+
     if (this._isCommand(cmd, word, index)) return;
+    this._listWords();
   }
 
 
-  private _isCommand(cmd: string, word: string|undefined, index: string|undefined) {
+  private _isCommand(cmd: string|undefined, word: string|undefined, index: string|undefined) {
     if (cmd == 'add') {
       this._addWord(word, index);
       return true;
     }
+    if (cmd == 'del') {
+      this._delWord(word);
+      return true;
+    }
+    return false;
   }
 
 
@@ -41,7 +45,34 @@ class DictionaryCmd extends Command {
       err.message,
       err.stack!
     );
-    this.bot.sendLowMsg('', `\`${word}\` Added to Dictionary!`);
+    this.bot.sai.dictionary.save();
+    this.bot.sendLowMsg('', `\`${word}\` Added!`);
+  }
+
+
+  private _delWord(word: string|undefined) {
+    if (!word) return this.bot.sendMedMsg(
+      'Ooopsie, you forgot to specify the word to delete!'
+    );
+    const err = this.bot.sai.dictionary.delWord(word);
+    if (err) return this.bot.sendException(
+      'I tried to delete the word, but...this happened.',
+      err.message,
+      err.stack!
+    );
+    this.bot.sai.dictionary.save();
+    this.bot.sendLowMsg('', `\`${word}\` Deleted!`);
+  }
+
+
+  private _listWords() {
+    const wordStr = this.bot.sai.dictionary.words.reduce((pv, cv, i) => {
+      return pv += `${i}: ${cv}\n`;
+    }, '');
+    this.bot.sendLowMsg(
+      `\`\`\`\n${wordStr}\n\`\`\``,
+      'Word List'
+    );
   }
 }
 
