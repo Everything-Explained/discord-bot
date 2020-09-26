@@ -41,13 +41,18 @@ class LevelCmd extends Command {
       this._setLevelText(level, text);
       return true;
     }
+    if (cmd == 'color') {
+      const [color] = args;
+      this._setLevelColor(level, color);
+      return true;
+    }
     return false;
   }
 
 
-  private _setLevelText(level: number, text: string) {
+  private _setLevelText(level: number, text: string|undefined) {
     if (!text) return this.bot.sendMedMsg(
-      `You forgot to provide a description for level \`${level}\``
+      `Whoopsie, you forgot to provide a description the level.`
     );
     if (!text.trim()) {
       return this.bot.sendMedMsg(
@@ -60,6 +65,24 @@ class LevelCmd extends Command {
   }
 
 
+  private _setLevelColor(level: number, color: string|undefined) {
+    if (!color) return this.bot.sendMedMsg(
+      'Oops, you forgot to provide a color for the level.'
+    );
+    if (!this._colorEx.test(color)) return this.bot.sendMedMsg(
+      `Sorry, that's an invalid HEX color. All HEX colors should look like this: ` +
+      '`#AA034F`. Notice that there are no lowercase letters and the length ' +
+      'of it is *exactly* **7**.\n\n' +
+      'Check out the color picker here: https://coolors.co/\n\n' +
+      'Click the color swatch on the right and move the controls around to ' +
+      `select your color. Once you're done, you can copy the code that's ` +
+      'generated.',
+      ':nerd:'
+    );
+    this._levels[level][2] = color;
+    const freshConfig = importFresh('../config.json') as typeof config;
+    this._writeLevelConfig(freshConfig, this._levels[level], level);
+  }
 
 
   private _isValidLevel(level: number) {
