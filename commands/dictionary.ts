@@ -9,20 +9,28 @@ class DictionaryCmd extends Command {
   }
 
 
-  _instruction(cmd: string|undefined, word: string|undefined, index: string|undefined) {
+  _instruction(cmdOrIndex: string|undefined, word: string|undefined, index: string|undefined) {
 
-    if (this._isCommand(cmd, word, index)) return;
+    if (this._isCommand(cmdOrIndex, word, index)) return;
     this._listWords();
   }
 
 
-  private _isCommand(cmd: string|undefined, word: string|undefined, index: string|undefined) {
-    if (cmd == 'add') {
+  private _isCommand(cmdOrIndex: string|undefined, word: string|undefined, index: string|undefined) {
+    if (cmdOrIndex == 'add') {
       this._addWord(word, index);
       return true;
     }
-    if (cmd == 'del') {
+    if (cmdOrIndex == 'del') {
       this._delWord(word);
+      return true;
+    }
+    if (cmdOrIndex) {
+      const index = +cmdOrIndex;
+      if (isNaN(index)) this.bot.sendMedMsg(
+        `I don't understand that argument...:thinks:`
+      );
+      else this._listIndex(index);
       return true;
     }
     return false;
@@ -69,6 +77,18 @@ class DictionaryCmd extends Command {
     );
     this.bot.sai.dictionary.save();
     this.bot.sendLowMsg('', `\`${word}\` Deleted!`);
+  }
+
+
+  private _listIndex(i: number) {
+    const len = this.bot.sai.dictionary.words.length;
+    if (i >= len) return this.bot.sendMedMsg(
+      "Sorry, that index doesn't exist."
+    );
+    this.bot.sendLowMsg(
+      `\`\`\`\n${this.bot.sai.dictionary.words[i].join(', ')}\n\`\`\``,
+      `Words at Index [ ${i} ]`
+    );
   }
 
 
