@@ -13,7 +13,7 @@ class LevelCmd extends Command {
 
 
   constructor(public bot: Bot) {
-    super('level', Bot.Role.Everyone);
+    super(['level', 'lvl'], Bot.Role.Everyone);
   }
 
 

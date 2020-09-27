@@ -1,7 +1,4 @@
-import { GuildMember, Message } from 'discord.js';
 import Bot from './bot';
-import CommandHandler from './command-handler';
-
 
 
 export abstract class Command {
@@ -10,7 +7,7 @@ export abstract class Command {
 
 
   constructor(
-    public name: string,
+    public aliases: string[],
     public role: Bot.Role,
   ) {}
 
@@ -18,7 +15,7 @@ export abstract class Command {
   protected abstract _instruction(...args: string[]): void;
 
 
-  exec(handler: CommandHandler, admin = false, ...args: string[]) {
+  exec(admin = false, ...args: string[]) {
     const msg = this.bot.curMsg;
     if (!admin && !this.bot.hasValidRole(msg.member!, this.role)) {
       return void this.bot.sendMedMsg(

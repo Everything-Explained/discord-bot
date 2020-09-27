@@ -31,7 +31,7 @@ class DefineCmd extends Command {
 
 
   constructor(public bot: Bot) {
-    super('define', Bot.Role.Everyone);
+    super(['define'], Bot.Role.Everyone);
   }
 
 

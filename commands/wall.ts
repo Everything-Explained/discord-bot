@@ -4,7 +4,7 @@ import { Command } from '../command';
 class WallCmd extends Command {
 
   constructor(public bot: Bot) {
-    super('wall', Bot.Role.Everyone);
+    super(['wall'], Bot.Role.Everyone);
   }
 
 

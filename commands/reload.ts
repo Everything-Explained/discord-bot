@@ -4,11 +4,11 @@ import Bot from "../bot";
 import TemplateCommand from "./template";
 
 class ReloadCmd extends Command {
-  constructor(public bot: Bot) { super('reload', Bot.Role.Admin); }
+  constructor(public bot: Bot) { super(['reload'], Bot.Role.Admin); }
 
   _instruction(cmd: string) {
     const commands = this.bot.commands;
-    const cmdIndex = commands.findIndex(c => c.name == cmd)
+    const cmdIndex = commands.findIndex(c => c.aliases[0] == cmd)
     ;
     if (this._isReloadingSpecial(cmd)) return
     ;

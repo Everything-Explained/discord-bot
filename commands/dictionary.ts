@@ -5,7 +5,7 @@ class DictionaryCmd extends Command {
 
 
   constructor(public bot: Bot) {
-    super('dictionary', Bot.Role.Everyone);
+    super(['dictionary', 'dict'], Bot.Role.Everyone);
   }
 
 

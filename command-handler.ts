@@ -16,7 +16,7 @@ class CommandHandler {
     if (!cmdInfo) return
     ;
     const [cmdName, ...args] = cmdInfo;
-    const cmd = this.commands.find(c => c.name == cmdName);
+    const cmd = this.commands.find(c => c.aliases.includes(cmdName));
     if (!cmd) {
       return void this._bot.curMsg.channel.send(
         getMedMsg('Command Not Found',
@@ -25,7 +25,7 @@ class CommandHandler {
         )
       );
     }
-    cmd.exec(this, admin, ...args);
+    cmd.exec(admin, ...args);
   }
 
   private _parseCommand(input: string) {
