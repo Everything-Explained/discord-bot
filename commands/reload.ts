@@ -8,7 +8,7 @@ class ReloadCmd extends Command {
 
   _instruction(cmd: string) {
     const commands = this.bot.commands;
-    const cmdIndex = commands.findIndex(c => c.aliases[0] == cmd)
+    const cmdIndex = commands.findIndex(c => c.aliases.includes(cmd))
     ;
     if (this._isReloadingSpecial(cmd)) return
     ;
@@ -17,7 +17,7 @@ class ReloadCmd extends Command {
       `Reload Error`
     );
     commands[cmdIndex] =
-      new (importFresh(`./${cmd}.js`) as typeof TemplateCommand)(this.bot)
+      new (importFresh(`./${commands[cmdIndex].aliases[0]}.js`) as typeof TemplateCommand)(this.bot)
     ;
     this.bot.sendLowMsg(`\`;${cmd}\` command reloaded!`);
   }
