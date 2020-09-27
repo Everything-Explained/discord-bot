@@ -67,7 +67,7 @@ class DictionaryCmd extends Command {
 
   private _listWords() {
     const wordStr = this.bot.sai.dictionary.words.reduce((pv, cv, i) => {
-      return pv += `${i}: ${cv}\n`;
+      return pv += `${i}: ${cv.join(', ')}\n\n`;
     }, '');
     this.bot.sendLowMsg(
       `\`\`\`\n${wordStr}\n\`\`\``,

@@ -45,7 +45,7 @@ class QuestionCmd extends Command {
       .then(item => {
         const titleWord = item.dateCreated < item.dateEdited ? 'Edited' : 'Added';
         this.bot.sendLowMsg(
-          `The following is your *editors* recept:\n\`editId: ${item.ids[0]}\``,
+          `The following is your *editors* recept:\n\`\`\`\neditId: ${item.ids[0]}\n\`\`\``,
           `Question ${titleWord} Successfully!`
         );
       })
