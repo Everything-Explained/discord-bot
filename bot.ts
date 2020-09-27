@@ -120,7 +120,7 @@ class Bot {
     return void msg.channel.send(new this.Embed()
       .setTitle(resp.title)
       .setDescription(`${resp.answer}\u200b\n\u200b`)
-      .setColor(this.colorFromPriority(Bot.MessagePriority.LOW))
+      .setColor(Bot.message_levels[resp.level][2])
       .setFooter(`by ${resp.authors[0]}`)
     );
   }
@@ -200,11 +200,6 @@ class Bot {
   }
 
 
-  colorFromLevel(level: Bot.MessageLevel) {
-    return Bot.levelColors[level];
-  }
-
-
   sendLowMsg(content: string, title = '') {
     return void this.curChannel.send(
       this.setMessage(title, Bot.MessagePriority.LOW, content)
@@ -261,18 +256,9 @@ namespace Bot {
     Admin = 'Admin',
   }
 
-  export const levelColors = [
-    '#FEFEFE',
-    '#4FB2FF',
-    '#00D01D',
-    '#FFED56',
-    '#FFAE00',
-    '#FF4F4F',
-    '#A75E00',
-    '#888888',
-    '#000000',
-    '#6C00FF',
-  ];
+  export const message_levels =
+    (importFresh('./config.json') as typeof config)
+      .bot.message_levels as [number, string, string][];
 }
 
 
