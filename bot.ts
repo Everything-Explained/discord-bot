@@ -80,31 +80,31 @@ class Bot {
     if (!this.isBotMentioned()) {
       return this._cmdHandler.find(msg.content);
     }
-    if (this._isQuestionEntry(msg)) return;
-    if (this._isQuestion(msg)) return;
+    if (this._isQuestionEntry()) return;
+    if (this._isQuestion()) return;
   }
 
 
-  private _isQuestionEntry(msg: Message) {
-    if (!this.hasValidRole(msg.member!, Bot.Role.Admin)) return false
+  private _isQuestionEntry() {
+    if (!this.hasValidRole(this.curMsg.member!, Bot.Role.Admin)) return false
     ;
-    const attachments = msg.attachments.array();
+    const attachments = this.curMsg.attachments.array();
     if (!attachments.length) return false
     ;
     if (attachments[0].url.substr(-3) != '.md') {
-      msg.delete();
+      this.curMsg.delete();
       this.sendMedMsg(
         'Oops! :nerd: Your file is missing the `.md` extension.'
       );
     }
-    msg.content = `;question ${attachments[0].url}`;
-    this._cmdHandler.find(msg.content, true);
+    this.curMsg.content = `;question ${attachments[0].url}`;
+    this._cmdHandler.find(this.curMsg.content, true);
     return true;
   }
 
 
-  private _isQuestion(msg: Message) {
-    const question = msg.content.replace(this._mentionEx, '').trim();
+  private _isQuestion() {
+    const question = this.curContent.replace(this._mentionEx, '').trim();
     const resp = this._sai.ask(question)
     ;
     if (typeof resp == 'number') {
@@ -117,7 +117,7 @@ class Bot {
         `:nerd: That question doesn't match anything in my knowledge-base.`
       );
     }
-    return void msg.channel.send(new this.Embed()
+    return void this.curChannel.send(new this.Embed()
       .setTitle(resp.title)
       .setDescription(`${resp.answer}\u200b\n\u200b`)
       .setColor(Bot.message_levels[resp.level][2])
