@@ -27,6 +27,7 @@ class LevelCmd extends Command {
       return;
     }
     if (!cmd) {
+      if (!this._isValidLevel(levelNum)) return;
       return this.bot.sendMsg(
         this._levels[levelNum][1],
         `Level ${lvlOrCmd}`,
@@ -113,7 +114,7 @@ class LevelCmd extends Command {
     if (!color) return this.bot.sendMedMsg(
       'Oops, you forgot to provide a color for the level.'
     );
-    if (!this._colorEx.test(color)) return this.bot.sendMedMsg(
+    if (!color.match(this._colorEx)) return this.bot.sendMedMsg(
       `Sorry, that's an invalid HEX color. All HEX colors should look like this: ` +
       '`#AA034F`. Notice that there are no lowercase letters and the length ' +
       'of it is *exactly* **7**.\n\n' +
