@@ -40,11 +40,18 @@ class DictionaryCmd extends Command {
       index ? this.bot.sai.dictionary.addWordToIndex(word, +index)
             : this.bot.sai.dictionary.addWord(word)
     ;
-    if (err) return this.bot.sendException(
-      'I tried to add the word, but something bad happened...',
-      err.message,
-      err.stack!
-    );
+    if (err) {
+      if (err.message.includes('exists')) {
+        return this.bot.sendMedMsg(
+          `The word \`${word}\` already exists, sorry!`
+        );
+      }
+      return this.bot.sendException(
+        'I tried to add the word, but something bad happened...',
+        err.message,
+        err.stack!
+      );
+    }
     this.bot.sai.dictionary.save();
     this.bot.sendLowMsg('', `\`${word}\` Added!`);
   }
