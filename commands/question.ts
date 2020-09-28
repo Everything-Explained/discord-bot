@@ -41,6 +41,10 @@ class QuestionCmd extends Command {
       this._findQuestion(args.join(' ').toLowerCase());
       return true;
     }
+    if (cmd == 'list') {
+      this._list();
+      return true;
+    }
     return false;
   }
 
@@ -61,6 +65,24 @@ class QuestionCmd extends Command {
       `\`\`\`\n${item.ids[0]}\n\`\`\``,
       'ID Found!'
     );
+  }
+
+
+  private _list() {
+    const questions =
+      this.bot.sai.questions.reduce((pv, cv) => {
+        return pv += this._createQuestionList(cv)+ '\n\n';
+      }, '')
+    ;
+    this.bot.sendLowMsg(
+      `${questions}`,
+      'Available Questions'
+    );
+  }
+
+
+  private _createQuestionList(questions: string[]) {
+    return questions.map(v => `\`\`\`${v}\`\`\``).join('');
   }
 
 
