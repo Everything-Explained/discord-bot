@@ -17,17 +17,50 @@ class QuestionCmd extends Command {
 
 
 
-  async _instruction(url: string) {
-    if (!this._urlEx.test(url)){
-      this.bot.sendMedMsg('Invalid URL for question parsing.');
-    }
-    const [err, doc] = await this._getQuestionDoc(url);
+  async _instruction(urlOrCmd: string, ...args: string[]) {
+    if (this._isCommand(urlOrCmd, ...args)) return
+    ;
+    if (args.length) return this.bot.sendMedMsg(
+      `:thinking: I tried really hard, but I don't understand what you want.`
+    );
+    if (!this._urlEx.test(urlOrCmd)) return this.bot.sendMedMsg(
+      'Invalid URL for question parsing.'
+    );
+    const [err, doc] = await this._getQuestionDoc(urlOrCmd);
     if (err) {
       this.bot.sendHighMsg(
         `An Error occurred while interacting with the URL:\n\`${err}\``
       );
     }
     this._parseQuestion(doc);
+  }
+
+
+  private _isCommand(cmd: string, ...args: string[]) {
+    if (cmd == 'find') {
+      this._findQuestion(args.join(' ').toLowerCase());
+      return true;
+    }
+    return false;
+  }
+
+
+  private _findQuestion(question: string) {
+    const item = this.bot.sai.ask(question);
+    if (item == RepErrorCode.Question) {
+      return this.bot.sendMedMsg(
+        `That's an invalid question. :thinking: Did you ask it correctly?`
+      );
+    }
+    if (!item) {
+      return this.bot.sendMedMsg(
+        `Sorry, I couldn't find that question in my knowledgebase.`
+      );
+    }
+    this.bot.sendLowMsg(
+      `\`\`\`\n${item.ids[0]}\n\`\`\``,
+      'ID Found!'
+    );
   }
 
 
