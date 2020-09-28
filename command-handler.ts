@@ -32,7 +32,7 @@ class CommandHandler {
     const args = input.trim().split(' ');
     const cmd = args.shift()!;
     if (cmd[0] != ';') return undefined;
-    if (cmd.length < 4) return undefined;
+    if (cmd.length < 2) return undefined;
     return [cmd.substr(1), ...args];
   }
 }
