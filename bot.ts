@@ -104,7 +104,7 @@ class Bot {
 
 
   private _isQuestion() {
-    const question = this.curContent.replace(this._mentionEx, '').trim();
+    const question = this.curContent.toLowerCase().replace(this._mentionEx, '').trim();
     const resp = this._sai.ask(question)
     ;
     if (typeof resp == 'number') {
