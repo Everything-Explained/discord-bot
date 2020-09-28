@@ -61,9 +61,10 @@ class QuestionCmd extends Command {
         `Sorry, I couldn't find that question in my knowledgebase.`
       );
     }
+    const questions = this.bot.sai.repository.questionsFromItem(item);
     this.bot.sendLowMsg(
-      `\`\`\`\n${item.ids[0]}\n\`\`\``,
-      'ID Found!'
+      `${this._createQuestionList(questions)}`,
+      `${item.ids[0]}`
     );
   }
 
