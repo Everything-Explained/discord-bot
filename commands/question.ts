@@ -12,7 +12,7 @@ class QuestionCmd extends Command {
 
 
   constructor(public bot: Bot) {
-    super(['question','qstn'], Bot.Role.Admin);
+    super(['question','qstn', 'q'], Bot.Role.Admin);
   }
 
 
