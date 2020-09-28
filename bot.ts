@@ -63,7 +63,9 @@ class Bot {
   constructor(private _client: Client, private _resetCallback: () => void, reset = false) {
     this._client.on('message', this._messageHandler);
     this._populateCommands();
-    this._cmdHandler = new CommandHandler(this._commands, this);
+    this._cmdHandler =
+      new (importFresh('./command-handler.js') as typeof CommandHandler)(this._commands, this)
+    ;
     if (!reset)
       this._client.login(config.apiKeys.discord)
     ;
