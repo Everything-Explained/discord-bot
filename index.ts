@@ -1,13 +1,10 @@
-import Discord, { Client } from 'discord.js';
+import { Client } from 'discord.js';
 import importFresh from 'import-fresh';
-import CommandHandler from './command-handler';
-import DefineCmd from './commands/define';
-import PingCmd from './commands/ping';
-import ReloadCmd from './commands/reload';
-import TestCmd from './commands/test';
-import { MessagePriority, setMessage } from './utils';
-import config from './config.json';
 import Bot from './bot';
+import sourcemap from 'source-map-support';
+
+// Provide typescript file stack traces
+sourcemap.install();
 
 
 
