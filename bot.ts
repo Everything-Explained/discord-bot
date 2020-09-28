@@ -166,7 +166,8 @@ class Bot {
 
 
   isBotMentioned() {
-    const botId = `<@!${config.bot.id}>`;
+    const botId = `${config.bot.id}>`;
+    if (!this.curMsg.content.match(this._mentionEx)) return false;
     if (!this.curMsg.content.includes(botId)) return false;
     return true;
   }
