@@ -1,18 +1,23 @@
-import { Message, TextChannel } from 'discord.js';
-import { Bot, Role } from '../bot';
+import Bot from '../bot';
 import { Command } from '../command';
-import CommandHandler from '../command-handler';
-import { MessagePriority, setMessage } from '../utils';
 
 class TestCmd extends Command {
 
   constructor(public bot: Bot) {
-    super('test', Role.Admin);
+    super(['test'], Bot.Role.Admin);
+  }
+
+  _help() {
+    this.bot.sendLowMsg(
+      'This command could literally do **ANY**thing and should only ' +
+      'be called if you know what it does.',
+      'Test Command'
+    );
   }
 
 
-  _instruction(handler: CommandHandler, msg: Message, limit: string) {
-    //
+  _instruction(...args: string[]) {
+    console.log('hello world');
   }
 }
 
