@@ -22,7 +22,7 @@ class WallCmd extends Command {
     while (lines--) {
       wall += '‎‎\u200B\n';
     }
-    this.bot.curMsg.channel.send(wall);
+    this.bot.curChannel.send(wall);
   }
 
 

@@ -90,6 +90,7 @@ class QuestionCmd extends Command {
     );
   }
 
+
   private _createQuestionList(questions: string[]) {
     return questions.map(v => `\`\`\`${v}\`\`\``).join('');
   }

@@ -54,7 +54,7 @@ class DefineCmd extends Command {
         const message = this.getDefinitionDisplay(word, defs, examples);
         message.setFooter(`▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔\n\u2022 ${Date.now() - timeNow}ms`)
         ;
-        this.bot.curMsg.channel.send(message);
+        this.bot.curChannel.send(message);
       }
       catch (err) {
         this.bot.sendException(

@@ -18,11 +18,10 @@ class CommandHandler {
     const [cmdName, ...args] = cmdInfo;
     const cmd = this.commands.find(c => c.aliases.includes(cmdName));
     if (!cmd) {
-      return void this._bot.curMsg.channel.send(
-        getMedMsg('Command Not Found',
-          'Make sure the command exists within the command list \
-          and that you have the sufficient **Role** to access to the command.'
-        )
+      return this._bot.sendMedMsg(
+        'Make sure the command exists within the command list \
+        and that you have the sufficient **Role** to access to the command.',
+        'Command Not Found',
       );
     }
     cmd.exec(admin, ...args);
