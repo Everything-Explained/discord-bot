@@ -1,7 +1,7 @@
-import Bot from '../bot';
+import Bot, { message_levels } from '../bot';
 import { Command } from '../command';
 import axios from 'axios';
-import { RepErrorCode } from '@noumenae/sai/dist/database/repository';
+import { RepErrorCode, RepoItem } from '@noumenae/sai/dist/database/repository';
 import { saiErrorResponses } from '../constants';
 
 class QuestionCmd extends Command {
@@ -61,11 +61,7 @@ class QuestionCmd extends Command {
         `Sorry, I couldn't find that question in my knowledgebase.`
       );
     }
-    const questions = this.bot.sai.repository.questionsFromItem(item);
-    this.bot.sendLowMsg(
-      `${this._createQuestionList(questions)}`,
-      `${item.ids[0]}`
-    );
+    this._sendQuestionDetails(item);
   }
 
 
@@ -81,6 +77,17 @@ class QuestionCmd extends Command {
     );
   }
 
+
+  private _sendQuestionDetails(item: RepoItem) {
+    const questions = this.bot.sai.repository.questionsFromItem(item);
+    this.bot.sendMsg(
+      `\`\`\`editId: ${item.ids[0]}\`\`\`\n` +
+      `Questions:${this._createQuestionList(questions)}\n` +
+      `Answer:\`\`\`${item.answer}\`\`\``,
+      `${item.title}`,
+      `${message_levels[item.level][2]}`
+    );
+  }
 
   private _createQuestionList(questions: string[]) {
     return questions.map(v => `\`\`\`${v}\`\`\``).join('');
@@ -100,10 +107,7 @@ class QuestionCmd extends Command {
     this.bot.sai.addQuestion(doc)
       .then(item => {
         const titleWord = item.dateCreated < item.dateEdited ? 'Edited' : 'Added';
-        this.bot.sendLowMsg(
-          `The following is your *editors* recept:\n\`\`\`\neditId: ${item.ids[0]}\n\`\`\``,
-          `Question ${titleWord} Successfully!`
-        );
+        this._sendQuestionDetails(item);
       })
       .catch(err => this._catchParseError(err))
     ;
