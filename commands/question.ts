@@ -32,6 +32,7 @@ class QuestionCmd extends Command {
         `An Error occurred while interacting with the URL:\n\`${err}\``
       );
     }
+    this.bot.curMsg.delete();
     this._parseQuestion(doc);
   }
 
