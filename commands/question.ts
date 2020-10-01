@@ -30,6 +30,10 @@ class QuestionCmd extends Command {
 
 
   private _isCommand(cmd: string, ...args: string[]) {
+    if (cmd == 'doc') {
+      this._getRawDoc(args.join(' ').trim());
+      return true;
+    }
     if (cmd == 'list') {
       this._list();
       return true;
@@ -65,6 +69,25 @@ class QuestionCmd extends Command {
     }
     this._sendQuestionDetails(item);
     return true;
+  }
+
+
+  private _getRawDoc(question: string) {
+    const item = this.bot.sai.ask(question);
+    if(item == RepErrorCode.Question) {
+      return this.bot.sendMedMsg(
+        'That\'s an invalid question.'
+      );
+    }
+    if (!item) {
+      return this.bot.sendMedMsg(
+        `Sorry, I couldn't find that question in my database.`
+      );
+    }
+    this.bot.sendLowMsg(
+      `\`\`\`${this.bot.sai.repository.toItemDoc(item)}\`\`\``,
+      'Item Document',
+    );
   }
 
 
