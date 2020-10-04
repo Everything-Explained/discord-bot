@@ -15,6 +15,33 @@ class QuestionCmd extends Command {
     super(['question','qstn', 'q'], Bot.Role.Admin);
   }
 
+  _help() {
+    this.bot.sendLowMsg(
+`**Aliases**
+\`\`\`${this.aliases.join(', ')}\`\`\`
+**Add Question**
+Checks that the \`<url>\` argument is a valid URL. If the
+URL is valid, then the bot will try to retrieve an Item
+Document resource from the URL and add it to its database.
+\`\`\`;question <url>\`\`\`
+**Find Question**
+Checks that the \`<question>\` argument is a valid question
+and if it is, tries to find that question in the database.
+\`\`\`;question <question>\`\`\`
+**List**
+Lists all saved questions and groups them together based
+on the document they came from.
+\`\`\`;question list\`\`\`
+**Question Document**
+Generates a raw Item Document from the specified \`<question>\`
+if it exists in the database.
+\`\`\`;question doc <question>\`\`\`
+_Don't forget ${this._listFencedAliases()}_ are interchangeable.
+`,
+'Question Command Help'
+    );
+  }
+
 
 
   async _instruction(arg1: string, ...args: string[]) {
@@ -154,6 +181,16 @@ class QuestionCmd extends Command {
     }
     this.bot.sendHighMsg(
       `Error Message:\n\`${err.message}\`\nError Trace:\n\`\`\`\n${err.stack}\n\`\`\``
+    );
+  }
+
+  private _listFencedAliases() {
+    return this.aliases.reduce(
+      (str, alias, i) => (
+        i == this.aliases.length - 1
+          ? str += `and \`;${alias}\``
+          : str += `\`;${alias}\` `
+      ), ''
     );
   }
 }
