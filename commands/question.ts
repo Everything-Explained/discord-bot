@@ -183,16 +183,6 @@ _Don't forget ${this._listFencedAliases()}_ are interchangeable.
       `Error Message:\n\`${err.message}\`\nError Trace:\n\`\`\`\n${err.stack}\n\`\`\``
     );
   }
-
-  private _listFencedAliases() {
-    return this.aliases.reduce(
-      (str, alias, i) => (
-        i == this.aliases.length - 1
-          ? str += `and \`;${alias}\``
-          : str += `\`;${alias}\` `
-      ), ''
-    );
-  }
 }
 
 export = QuestionCmd;

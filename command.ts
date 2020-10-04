@@ -16,6 +16,16 @@ export abstract class Command {
 
   protected abstract _help(): void;
 
+  protected _listFencedAliases() {
+    return this.aliases.reduce(
+      (str, alias, i) => (
+        i == this.aliases.length - 1
+          ? str += `and \`;${alias}\``
+          : str += `\`;${alias}\` `
+      ), ''
+    );
+  }
+
 
   exec(admin = false, ...args: string[]) {
     const msg = this.bot.curMsg;
