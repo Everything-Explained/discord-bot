@@ -31,7 +31,23 @@ class DefineCmd extends Command {
 
 
   constructor(public bot: Bot) {
-    super(['define'], Bot.Role.Everyone);
+    super(['define', 'def'], Bot.Role.Everyone);
+  }
+
+
+  _help() {
+    this.bot.sendLowMsg(
+`**Aliases**
+\`\`\`${this.aliases.join(', ')}\`\`\`
+**Get the Definition of a Word**
+If the \`<word>\` exists, it will use the Merriam Webster
+dictionary to define the \`<word>\` you provided. If it can't
+find the \`<word>\`, then it will return a list of possible
+words you **meant** to type.
+\`\`\`;define <word>\`\`\`
+${this.helpFooter}`,
+      'Define Command Help'
+    );
   }
 
 
