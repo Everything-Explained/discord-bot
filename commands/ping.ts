@@ -15,7 +15,7 @@ Returns the milliseconds it takes for the bot to
 communicate with the Discord API. It requires no
 arguments.
 \`\`\`;ping\`\`\`
-_Don't forget ${this._listFencedAliases()} are interchangeable._
+${this._helpFooter()}
 `,
       'Ping Command Help'
     );

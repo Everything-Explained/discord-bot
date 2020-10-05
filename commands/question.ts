@@ -36,7 +36,7 @@ on the document they came from.
 Generates a raw Item Document from the specified \`<question>\`
 if it exists in the database.
 \`\`\`;question doc <question>\`\`\`
-_Don't forget ${this._listFencedAliases()}_ are interchangeable.
+${this._helpFooter()}
 `,
 'Question Command Help'
     );
