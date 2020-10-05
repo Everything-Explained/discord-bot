@@ -15,12 +15,12 @@ export abstract class Command {
     const aliasList = this.aliases.reduce(
       (str, alias, i) => (
         i == this.aliases.length - 1
-          ? str += `and \`;${alias}\``
+          ? str += `*and* \`;${alias}\``
           : str += `\`;${alias}\` `
       ), ''
     );
     return this.aliases.length > 1
-      ? `*Don't forget ${aliasList} are interchangeable.*`
+      ? `*Don't forget that* ${aliasList} *are interchangeable.*`
       : ''
     ;
   }
