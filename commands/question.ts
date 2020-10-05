@@ -44,10 +44,11 @@ ${this.helpFooter}
 
 
 
-  async _instruction(arg: string, ...args: string[]) {
-    if (arg == 'doc') return this._getRawDoc(args.join(' ').trim());
-    if (arg == 'list') return this._list();
-    if (this._urlEx.test(arg)) return this._processURL(arg);
+  _instruction(arg: string, ...args: string[]) {
+    if (arg == 'doc')          return this._getRawDoc(args.join(' ').trim());
+    if (arg == 'list')         return this._list();
+    if (this._urlEx.test(arg)) return void (this._processURL(arg))
+    ;
     this._findQuestion([arg, ...args].join(' '));
   }
 
