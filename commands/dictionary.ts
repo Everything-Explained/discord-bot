@@ -28,7 +28,34 @@ class DictionaryCmd extends Command {
   }
 
 
-  private _addWord(word: string|undefined, index: string|undefined) {
+  _help() {
+    this.bot.sendLowMsg(
+`**Aliases**
+\`\`\`${this.aliases.join(', ')}\`\`\`
+**List Words**
+Will list all words grouped by their index.
+\`\`\`;dictionary list\`\`\`
+**Words at Index**
+Lists all words at a specific \`<index>\`.
+\`\`\`;dictionary <index>\`\`\`
+**Add Word**
+Will add a \`<word>\` to the dictionary. If an \`<index>\` is provided,
+then it will add a \`<word>\` to that \`<index>\`, if it exists. The
+\`<index>\` is a number that correlates directly to a specific
+location of words in the database. *Listing the words will show you
+their index position.*
+\`\`\`;dictionary add <word>\`\`\` \`\`\`;dictionary add <word> <index>\`\`\`
+**Delete Word**
+Will delete a \`<word>\` if it exists.
+\`\`\`;dictionary del <word>\`\`\`
+${this.helpFooter}`,
+'Dictionary Command Help'
+    );
+  }
+
+
+
+  private _addWord(word: strund, index: strund) {
     if (!word) return this.bot.sendMedMsg(
       'Whoops, you forgot to specify a word to add'
     );
@@ -56,7 +83,7 @@ class DictionaryCmd extends Command {
   }
 
 
-  private _delWord(word: string|undefined) {
+  private _delWord(word: strund) {
     if (!word) return this.bot.sendMedMsg(
       'Ooopsie, you forgot to specify the word to delete!'
     );
