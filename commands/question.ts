@@ -44,34 +44,15 @@ ${this.helpFooter}
 
 
 
-  async _instruction(arg1: string, ...args: string[]) {
-    if (this._isCommand(arg1, ...args)) return
-    ;
-    if (await this._isProcessingURL(arg1)) return;
-    if (!this._isFindingQuestion([arg1, ...args].join(' '))) {
-      this.bot.sendMedMsg(
-        'You entered an **Invalid** `URL` or `Question`'
-      );
-    }
+  async _instruction(arg: string, ...args: string[]) {
+    if (arg == 'doc') return this._getRawDoc(args.join(' ').trim());
+    if (arg == 'list') return this._list();
+    if (this._urlEx.test(arg)) return this._processURL(arg);
+    this._findQuestion([arg, ...args].join(' '));
   }
 
 
-  private _isCommand(cmd: string, ...args: string[]) {
-    if (cmd == 'doc') {
-      this._getRawDoc(args.join(' ').trim());
-      return true;
-    }
-    if (cmd == 'list') {
-      this._list();
-      return true;
-    }
-    return false;
-  }
-
-
-  private async _isProcessingURL(url: string) {
-    if (!this._urlEx.test(url)) return false
-    ;
+  private async _processURL(url: string) {
     const [err, doc] = await this._getQuestionDoc(url);
     this.bot.curMsg.delete()
     ;
@@ -81,21 +62,22 @@ ${this.helpFooter}
       );
     }
     this._parseQuestion(doc);
-    return true;
   }
 
 
-  private _isFindingQuestion(question: string) {
+  private _findQuestion(question: string) {
     const item = this.bot.sai.ask(question);
-    if (item == RepErrorCode.Question) return false
-    ;
+    if (item == RepErrorCode.Question) {
+      return this.bot.sendMedMsg(
+        'You entered an **Invalid** `URL` or `Question`'
+      );
+    }
     if (!item) {
-      return !this.bot.sendMedMsg(
+      return this.bot.sendMedMsg(
         `Sorry, I couldn't find that question in my database.`
       );
     }
     this._sendQuestionDetails(item);
-    return true;
   }
 
 
