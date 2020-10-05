@@ -1,6 +1,10 @@
 import Bot from '../bot';
 import { Command } from '../command';
 
+
+type strund = string|undefined;
+
+
 class DictionaryCmd extends Command {
 
 
@@ -9,31 +13,18 @@ class DictionaryCmd extends Command {
   }
 
 
-  _instruction(cmdOrIndex: string|undefined, word: string|undefined, index: string|undefined) {
-
-    if (this._isCommand(cmdOrIndex, word, index)) return;
-    this._listWords();
-  }
-
-
-  private _isCommand(cmdOrIndex: string|undefined, word: string|undefined, index: string|undefined) {
-    if (cmdOrIndex == 'add') {
-      this._addWord(word, index);
-      return true;
-    }
-    if (cmdOrIndex == 'del') {
-      this._delWord(word);
-      return true;
-    }
-    if (cmdOrIndex) {
-      const index = +cmdOrIndex;
-      if (isNaN(index)) this.bot.sendMedMsg(
+  _instruction(arg: strund, word: strund, index: strund) {
+    if (arg == 'add')  return this._addWord(word, index);
+    if (arg == 'del')  return this._delWord(word);
+    if (arg == 'list') return this._listWords()
+    ;
+    if (arg) {
+      const index = +arg;
+      if (isNaN(index)) return this.bot.sendMedMsg(
         `I don't understand that argument...:thinks:`
       );
-      else this._listIndex(index);
-      return true;
+      this._listIndex(index);
     }
-    return false;
   }
 
 
