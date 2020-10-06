@@ -12,7 +12,7 @@ import { SAI } from "@noumenae/sai";
 import QuestionCmd from "./commands/question";
 import LevelCmd from "./commands/level";
 import DictionaryCmd from "./commands/dictionary";
-import CoinflipCmd from "./commands/coinflip";
+import CoinFlipCmd from "./commands/coin-flip";
 
 
 
@@ -141,7 +141,7 @@ class Bot {
       new (importFresh('./commands/question.js'   ) as typeof QuestionCmd)(this),
       new (importFresh('./commands/level.js'      ) as typeof LevelCmd)(this),
       new (importFresh('./commands/dictionary.js' ) as typeof DictionaryCmd)(this),
-      new (importFresh('./commands/coinflip.js'   ) as typeof CoinflipCmd)(this),
+      new (importFresh('./commands/coin-flip.js'  ) as typeof CoinFlipCmd)(this),
     ];
   }
 
