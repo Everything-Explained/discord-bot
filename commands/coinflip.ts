@@ -7,7 +7,7 @@ interface RNGData {
   jsonrpc: string;
   result: {
     random: {
-      data: number[],
+      data: number[][],
       completionTime: string;
     }
     bitsUsed: number,
@@ -31,16 +31,15 @@ class CoinflipCmd extends Command {
 
   private _rngReqData = {
     "jsonrpc": "2.0",
-    "method": "generateIntegers",
+    "method": "generateIntegerSequences",
     "params": {
       "apiKey": config.apiKeys.rng,
-      "n": 1,
-      "min": 1,
-      "max": 2,
-      "replacement": true,
-      "base": 10
+      "n": 2,
+      "length": [1, 1],
+      "min": [1, 1],
+      "max": [2, 1e6]
     },
-    "id": 4077
+    "id": 1337
   }
 
 
@@ -68,16 +67,22 @@ ${this.helpFooter}`
 
 
   async _instruction() {
-    const n = await this._get1or2();
-    if (!n) return
+    const numArry = await this._getRandomNumbers();
+    if (!numArry) return
     ;
+    const [n, n2] = numArry;
+    // 1 in 1e6 chance
+    if (n2 == 1337) return this.bot.sendLowMsg(
+      'Umm...:flushed:...the coin landed on.....it\'s SIDE!!'
+    );
+    // 1 in 2 chance
     this.bot.sendLowMsg(
       `The coin landed on...${n == 1 ? 'TAILS' : 'HEADS'}!`
     );
   }
 
 
-  private async _get1or2() {
+  private async _getRandomNumbers() {
     try {
       const resp = await this._rngService.post('', this._rngReqData);
       const data = resp.data as RNGData
@@ -88,7 +93,7 @@ ${this.helpFooter}`
 **Data**
 \`\`\`${resp.data}\`\`\``
       );
-      return data.result.random.data[0];
+      return data.result.random.data.map(v => v[0]);
     }
     catch (err) {
       this.bot.sendException(
