@@ -18,73 +18,60 @@ class LevelCmd extends Command {
 
 
 
-  _instruction(lvlOrCmd: string, cmd?: string, ...args: string[]) {
-    const levelNum = +lvlOrCmd
+  _instruction(arg: string, cmd?: string, ...args: string[]) {
+    // Commands ANY args NO level
+    if (arg == 'count') return this._sendLevelCount();
+    if (arg == 'list')  return this._listAllLevels();
+    if (arg == 'add')   return (
+      this._addLevel(
+        cmd && args.length
+          ? [cmd, ...args].join(' ').trim()
+          : undefined
+      )
+    );
+    if (!this._isValidLevel(arg)) return;
+
+    // Commands NO args WITH level
+    const level = +arg;
+    if (!cmd)               return this._displayLevel(level);
+    if (   cmd == 'del'
+        || cmd == 'delete') return this._deleteLevel(level)
     ;
-    if (isNaN(levelNum)) {
-      if (lvlOrCmd == 'count') return void this._sendLevelCount();
-      if (lvlOrCmd == 'list')  return void this._listAllLevels();
-      return;
-    }
-    if (!cmd) {
-      if (!this._isValidLevel(levelNum)) return;
-      return this.bot.sendMsg(
-        this._levels[levelNum][1],
-        `Level ${lvlOrCmd}`,
-        `${this._levels[levelNum][2]}`
-      );
-    }
-    if (this._isEditingLevel(levelNum, cmd, ...args)) return;
 
+    // Commands WITH args WITH level
+    if (!args.length) return this.bot.sendMedMsg(
+      `You're missing an expected value for the \`${cmd}\` sub-command.`
+    );
+    const argStr = args.join(' ').trim();
+    if (cmd == 'text')  return this._setLevelText(level, argStr);
+    if (cmd == 'color') return this._setLevelColor(level, args[0]);
   }
 
 
-  private _isEditingLevel(level: number, cmd: string|undefined, ...args: string[]) {
-    if (cmd == 'text') {
-      if (!this._isValidLevel(level)) return;
-      const text = args.join(' ');
-      this._setLevelText(level, text.trim());
-      return true;
-    }
-    if (cmd == 'color') {
-      if (!this._isValidLevel(level)) return;
-      const [color] = args;
-      this._setLevelColor(level, color.trim());
-      return true;
-    }
-    if (cmd == 'add') {
-      const desc = args.join(' ');
-      this._isAddingLevel(level, desc.trim());
-      return true;
-    }
-    if (cmd == 'delete' || cmd == 'del') {
-      if (!this._isValidLevel(level)) return;
-      this._isDeletingLevel(level);
-      return true;
-    }
-    return false;
+  private _displayLevel(level: number) {
+    this.bot.sendMsg(
+      `${this._levels[level][1]}`,
+      `Level ${level}`,
+      `${this._levels[level][2]}`
+    );
   }
 
 
-  private _isAddingLevel(level: number, desc: string|undefined) {
+  private _addLevel(desc: string|undefined) {
     if (!desc) return this.bot.sendMedMsg(
-      'Woah there, you forgot to enter the description for the level!'
+      'Woah there, you forgot to enter a full description for the level!'
     );
-    const len = this._levels.length;
-    if (level != len) return this.bot.sendMedMsg(
-      'You can only add levels in order. The next available level that ' +
-      `can be added, is \`Level ${len}\`.`
-    );
+    const newLevel = this._levels.length;
     this._levels.push(
-      [len, desc, this._levels[len - 1][2]]
+      [newLevel, desc, this._levels[newLevel - 1][2]]
     );
     const freshConfig = importFresh('../config.json') as typeof config;
-    this._writeLevelConfig(freshConfig, this._levels, level, true);
-    this._instruction(`${level}`);
+    this._writeLevelConfig(freshConfig, this._levels, newLevel, true);
+    this._instruction(`${newLevel}`);
   }
 
 
-  private _isDeletingLevel(level: number) {
+  private _deleteLevel(level: number) {
     const realLen = this._levels.length - 1;
     if (level < realLen) return this.bot.sendMedMsg(
       'Sorry, I cannot allow you to delete any levels below ' +
@@ -131,9 +118,15 @@ class LevelCmd extends Command {
   }
 
 
-  private _isValidLevel(level: number) {
-    const realLevel = this._levels.length - 1;
-    if (level < 0 || level > (realLevel)) {
+  private _isValidLevel(level: string) {
+    const levelNum = +level
+    ;
+    if (isNaN(levelNum)) return !!this.bot.sendMedMsg(
+      'You entered a level that is **Not a Number**.'
+    );
+    const realLevel = this._levels.length - 1
+    ;
+    if (levelNum < 0 || levelNum > realLevel) {
       return !!this.bot.sendMedMsg(
         `Invalid Level Number: \`${level}\`` +
         `\nLevels must be in the range \`0 to ${realLevel}\``
@@ -146,7 +139,7 @@ class LevelCmd extends Command {
   private _sendLevelCount() {
     const len = this._levels.length;
     this.bot.sendLowMsg(
-      `There are currently **${len}** defined levels.\n\n` +
+      `There are currently **${len}** defined levels.\n` +
       `Level **${len - 1}** is currently the last level.`
     );
   }
@@ -155,7 +148,7 @@ class LevelCmd extends Command {
   private _getMessageLevels() {
     return (
       (importFresh('../config.json') as typeof config)
-        .bot.message_levels as [number, string, string][]
+        .bot.message_levels as [index: number, desc: string, color: string][]
     );
   }
 
@@ -163,11 +156,10 @@ class LevelCmd extends Command {
   private _listAllLevels() {
     this._levels.forEach((v, i) => {
       const [lvl, text, color] = v;
-      setTimeout(() => {
-        this.bot.sendMsg(text, `Level ${lvl}`,
-          color
-        );
-      }, i * 1200);
+      setTimeout(
+        () => this.bot.sendMsg(text, `Level ${lvl}`, color),
+        i * 1200
+      );
     });
   }
 
@@ -176,8 +168,8 @@ class LevelCmd extends Command {
     newConfig: typeof config,
     data: any,
     level: number,
-    all = false)
-  {
+    all = false
+  ){
     if (all) newConfig.bot.message_levels        = data;
     else     newConfig.bot.message_levels[level] = data
     ;
