@@ -46,6 +46,44 @@ class LevelCmd extends Command {
   }
 
 
+  _help() {
+    this.bot.sendLowMsg(
+`**Aliases**
+\`\`\`${this.aliases.join(', ')}\`\`\`
+**Count Level**
+Gives you a count of how many levels are currently available.
+\`\`\`;level count\`\`\`
+**List Levels**
+Lists all levels one after the other, with a certain delay. If
+a level fails to appear at first, it's because Discord is not
+able to keep up with the messages.
+\`\`\`;level list\`\`\`
+**Lookup Level**
+Returns the description and number of the \`<level>\` you
+you entered. This is useful if you've forgotten which level
+is which and just need to refresh your memory.
+\`\`\`;level <level>\`\`\`
+**Add Level**
+Adds a new level **after** the current last level. It requires
+a \`<description>\` to be set for the level during creation.
+\`\`\`;level add <description>\`\`\`
+**Delete Level**
+Deletes the *last existing* level only. This preserves the
+order of the levels.
+\`\`\`;level delete\`\`\`
+**Edit Level Text**
+Updates the \`<description>\` of an existing \`<level>\`.
+\`\`\`;level <level> text <description>\`\`\`
+**Edit Level Color**
+Updates the border \`<color>\` of a \`<level>\`. The \`<color>\`
+must be in capitalized hex format, e.g. \`#F83CC9\`
+\`\`\`;level <level> color <color>\`\`\`
+${this.helpFooter}`,
+      'Level Command Help'
+    );
+  }
+
+
   private _displayLevel(level: number) {
     this.bot.sendMsg(
       `${this._levels[level][1]}`,
