@@ -72,7 +72,7 @@ ${this.helpFooter}`
     ;
     const [n, n2] = numArry;
     // 1 in 1e6 chance
-    if (n2 == 1337) return this.bot.sendLowMsg(
+    if (n2 == 1e6) return this.bot.sendLowMsg(
       'Umm...:flushed:...the coin landed on.....it\'s SIDE!!'
     );
     // 1 in 2 chance
