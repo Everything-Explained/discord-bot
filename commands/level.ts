@@ -29,14 +29,12 @@ class LevelCmd extends Command {
           : undefined
       )
     );
+    if (arg == 'delete') return this._deleteLevel();
     if (!this._isValidLevel(arg)) return;
 
     // Commands NO args WITH level
     const level = +arg;
-    if (!cmd)               return this._displayLevel(level);
-    if (   cmd == 'del'
-        || cmd == 'delete') return this._deleteLevel(level)
-    ;
+    if (!cmd) return this._displayLevel(level);
 
     // Commands WITH args WITH level
     if (!args.length) return this.bot.sendMedMsg(
@@ -71,17 +69,13 @@ class LevelCmd extends Command {
   }
 
 
-  private _deleteLevel(level: number) {
-    const realLen = this._levels.length - 1;
-    if (level < realLen) return this.bot.sendMedMsg(
-      'Sorry, I cannot allow you to delete any levels below ' +
-      `the current last level, which is **${realLen}**.`
-    );
-    this._levels.splice(realLen, 1);
+  private _deleteLevel() {
+    const lastLevel = this._levels.length - 1;
+    this._levels.splice(lastLevel, 1);
     const freshConfig = importFresh('../config.json') as typeof config;
-    this._writeLevelConfig(freshConfig, this._levels, level, true);
+    this._writeLevelConfig(freshConfig, this._levels, lastLevel, true);
     this.bot.sendLowMsg(
-      '', `Level ${realLen} Deleted`
+      '', `Level ${lastLevel} Deleted`
     );
   }
 
