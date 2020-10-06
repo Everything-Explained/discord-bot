@@ -21,7 +21,7 @@ interface RNGData {
 
 class CoinflipCmd extends Command {
 
-  rngService = axios.create({
+  private _rngService = axios.create({
     baseURL: 'https://api.random.org/json-rpc/2/invoke',
     headers: {
       'Content-Type': 'application/json'
@@ -29,7 +29,7 @@ class CoinflipCmd extends Command {
     timeout: 5000
   });
 
-  private _rngData = {
+  private _rngReqData = {
     "jsonrpc": "2.0",
     "method": "generateIntegers",
     "params": {
@@ -79,7 +79,7 @@ ${this.helpFooter}`
 
   private async _get1or2() {
     try {
-      const resp = await this.rngService.post('', this._rngData);
+      const resp = await this._rngService.post('', this._rngReqData);
       const data = resp.data as RNGData
       ;
       if (resp.status != 200) return this.bot.sendHighMsg(
