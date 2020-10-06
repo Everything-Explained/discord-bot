@@ -118,10 +118,7 @@ ${this.helpFooter}`,
   }
 
 
-  private _setLevelText(level: number, text: string|undefined) {
-    if (!text) return this.bot.sendMedMsg(
-      `Whoopsie, you forgot to provide a description the level.`
-    );
+  private _setLevelText(level: number, text: string) {
     this._levels[level][1] = text;
     const freshConfig = importFresh('../config.json') as typeof config;
     this._writeLevelConfig(freshConfig, this._levels[level], level);
@@ -129,10 +126,7 @@ ${this.helpFooter}`,
   }
 
 
-  private _setLevelColor(level: number, color: string|undefined) {
-    if (!color) return this.bot.sendMedMsg(
-      'Oops, you forgot to provide a color for the level.'
-    );
+  private _setLevelColor(level: number, color: string) {
     if (!color.match(this._colorEx)) return this.bot.sendMedMsg(
       `Sorry, that's an invalid HEX color. All HEX colors should look like this: ` +
       '`#AA034F`. Notice that there are no lowercase letters and the length ' +
