@@ -5,32 +5,19 @@ export abstract class Command {
 
   abstract bot: Bot;
 
+  /**
+   * Returns the body of a commands help info.
+   */
+  abstract get help(): string;
+
 
   constructor(
     public aliases: string[],
     public role: Bot.Role,
   ) {}
 
-  get helpFooter() {
-    const aliasList = this.aliases.reduce(
-      (str, alias, i) => (
-        i == this.aliases.length - 1
-          ? str += `*and* \`;${alias}\``
-          : str += `\`;${alias}\` `
-      ), ''
-    );
-    return this.aliases.length > 1
-      ? `*Don't forget that* ${aliasList} *are interchangeable.*`
-      : ''
-    ;
-  }
-
 
   protected abstract _instruction(...args: string[]): void;
-
-
-  protected abstract _help(): void;
-
 
 
   exec(admin = false, ...args: string[]) {
