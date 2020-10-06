@@ -12,9 +12,12 @@ import { SAI } from "@noumenae/sai";
 import QuestionCmd from "./commands/question";
 import LevelCmd from "./commands/level";
 import DictionaryCmd from "./commands/dictionary";
+import CoinflipCmd from "./commands/coinflip";
+
 
 
 type DiscordChannel = TextChannel|DMChannel|NewsChannel;
+
 
 
 class Bot {
@@ -120,24 +123,25 @@ class Bot {
       );
     }
     return void this.curChannel.send(new this.Embed()
-      .setTitle(resp.title)
-      .setDescription(`${resp.answer}\u200b\n\u200b`)
-      .setColor(Bot.message_levels[resp.level][2])
-      .setFooter(`by ${resp.authors[0]}`)
+      .setTitle       (resp.title)
+      .setDescription (`${resp.answer}\u200b\n\u200b`)
+      .setColor       (Bot.message_levels[resp.level][2])
+      .setFooter      (`by ${resp.authors[0]}`)
     );
   }
 
 
   private _populateCommands() {
     this._commands = [
-      new (importFresh('./commands/ping.js'    ) as typeof PingCmd)(this),
-      new (importFresh('./commands/reload.js'  ) as typeof ReloadCmd)(this),
-      new (importFresh('./commands/test.js'    ) as typeof TestCmd)(this),
-      new (importFresh('./commands/define.js'  ) as typeof DefineCmd)(this),
-      new (importFresh('./commands/wall.js'    ) as typeof WallCmd)(this),
-      new (importFresh('./commands/question.js') as typeof QuestionCmd)(this),
-      new (importFresh('./commands/level.js'   ) as typeof LevelCmd)(this),
-      new (importFresh('./commands/dictionary.js'   ) as typeof DictionaryCmd)(this),
+      new (importFresh('./commands/ping.js'       ) as typeof PingCmd)(this),
+      new (importFresh('./commands/reload.js'     ) as typeof ReloadCmd)(this),
+      new (importFresh('./commands/test.js'       ) as typeof TestCmd)(this),
+      new (importFresh('./commands/define.js'     ) as typeof DefineCmd)(this),
+      new (importFresh('./commands/wall.js'       ) as typeof WallCmd)(this),
+      new (importFresh('./commands/question.js'   ) as typeof QuestionCmd)(this),
+      new (importFresh('./commands/level.js'      ) as typeof LevelCmd)(this),
+      new (importFresh('./commands/dictionary.js' ) as typeof DictionaryCmd)(this),
+      new (importFresh('./commands/coinflip.js'   ) as typeof CoinflipCmd)(this),
     ];
   }
 
@@ -209,17 +213,20 @@ class Bot {
     );
   }
 
+
   sendMedMsg(content: string, title = '') {
     return void this.curChannel.send(
       this.setMessage(title, Bot.MessagePriority.MEDIUM, content)
     );
   }
 
+
   sendHighMsg(content: string, title = '') {
     return void this.curChannel.send(
       this.setMessage(title, Bot.MessagePriority.HIGH, content)
     );
   }
+
 
   sendException(description: string, message: string, stack: string) {
     this.sendHighMsg(
