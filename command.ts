@@ -41,17 +41,6 @@ export abstract class Command {
         permissions use this command.`
       );
     }
-    if (args[0] == 'help' || args[0] == '?') {
-      if (!this._help) {
-        return this.bot.sendHighMsg(
-          'Jaeiya is a bad boy!! :face_with_symbols_over_mouth:\n' +
-          'He forgot to add a description to the help command. ' +
-          '\n\n**Make sure you yell at him thoroughly for me!**.',
-          'Command Has No Help'
-        );
-      }
-      return this._help();
-    }
     this._instruction(...args);
   }
 }
