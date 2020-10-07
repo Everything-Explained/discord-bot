@@ -53,8 +53,12 @@ help display that you're reading right now.
 
 
   private _genHelpHeader(cmd: Command) {
-    const aliases = `\`\`\`${cmd.aliases.map(v => `;${v}`).join(', ')}\`\`\``;
-    return `**Aliases**\n${aliases}`;
+    const aliases = `\`\`\`${cmd.aliases.map(v => `;${v}`).join(', ')}\`\`\``
+    ;
+    return cmd.aliases.length > 1
+      ? `**Aliases**\n${aliases}`
+      : ''
+    ;
   }
 
 

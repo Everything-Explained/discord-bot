@@ -42,27 +42,22 @@ class CoinflipCmd extends Command {
     "id": 1337
   }
 
-
-  constructor(public bot: Bot) {
-    super(['coinflip', 'flipcoin', 'flip'], Bot.Role.Everyone);
-  }
-
-
-
-  _help() {
-    this.bot.sendLowMsg(
-`**Aliases**
-\`\`\`${this.aliases.join(', ')}\`\`\`
-**Heads or Tails?**
+  get help() {
+    return (
+`**Heads or Tails?**
 Generates a *Truly Random* coin flip, using an API which
 provides numbers based on atmospheric noise.
 \`\`\`;coinflip\`\`\`
 **How it Works**
 If you're interested in reading more about how it works,
 head on over to https://www.random.org/ and check it out.
-
-${this.helpFooter}`
+`
     );
+  }
+
+
+  constructor(public bot: Bot) {
+    super(['coin-flip', 'coinflip', 'flipcoin', 'flip'], Bot.Role.Everyone);
   }
 
 

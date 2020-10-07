@@ -3,24 +3,21 @@ import { Command } from '../command';
 
 class WallCmd extends Command {
 
-  constructor(public bot: Bot) {
-    super(['wall'], Bot.Role.Everyone);
-  }
-
-  _help() {
-    this.bot.sendLowMsg(
-`**Aliases**
-\`\`\`${this.aliases.join(', ')}\`\`\`
-**Wall**
+  get help() {
+    return (
+`**Making a Wall**
 Sends a \`<size>\` amount of invisible lines, which when
 large enough, creates the illusion of an invisible wall
 of text. This is useful for giving the illusion of a *blank
 channel*, *hiding off-topic content*, or *just having fun*.
-\`\`\`;wall <size>\`\`\`
-${this.helpFooter}`,
-      'Wall Command Help'
+\`\`\`;wall <size>\`\`\``
     );
   }
+
+  constructor(public bot: Bot) {
+    super(['wall'], Bot.Role.Everyone);
+  }
+
 
   _instruction(size: string) {
     let lines = +size;

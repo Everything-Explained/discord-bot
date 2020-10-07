@@ -10,47 +10,9 @@ class LevelCmd extends Command {
   private _levels = this._getMessageLevels();
   private _colorEx = /^#(([0-9A-F]){2}){3}$/g;
 
-
-
-  constructor(public bot: Bot) {
-    super(['level', 'lvl'], Bot.Role.Everyone);
-  }
-
-
-
-  _instruction(arg: string, cmd?: string, ...args: string[]) {
-    // Commands ANY args NO level
-    if (arg == 'count') return this._sendLevelCount();
-    if (arg == 'list')  return this._listAllLevels();
-    if (arg == 'add')   return (
-      this._addLevel(
-        cmd && args.length
-          ? [cmd, ...args].join(' ').trim()
-          : undefined
-      )
-    );
-    if (arg == 'delete') return this._deleteLevel();
-    if (!this._isValidLevel(arg)) return;
-
-    // Commands NO args WITH level
-    const level = +arg;
-    if (!cmd) return this._displayLevel(level);
-
-    // Commands WITH args WITH level
-    if (!args.length) return this.bot.sendMedMsg(
-      `You're missing an expected value for the \`${cmd}\` sub-command.`
-    );
-    const argStr = args.join(' ').trim();
-    if (cmd == 'text')  return this._setLevelText(level, argStr);
-    if (cmd == 'color') return this._setLevelColor(level, args[0]);
-  }
-
-
-  _help() {
-    this.bot.sendLowMsg(
-`**Aliases**
-\`\`\`${this.aliases.join(', ')}\`\`\`
-**Count Level**
+  get help() {
+    return (
+`**Count Level**
 Gives you a count of how many levels are currently available.
 \`\`\`;level count\`\`\`
 **List Levels**
@@ -77,10 +39,42 @@ Updates the \`<description>\` of an existing \`<level>\`.
 **Edit Level Color**
 Updates the border \`<color>\` of a \`<level>\`. The \`<color>\`
 must be in capitalized hex format, e.g. \`#F83CC9\`
-\`\`\`;level <level> color <color>\`\`\`
-${this.helpFooter}`,
-      'Level Command Help'
+\`\`\`;level <level> color <color>\`\`\``
     );
+  }
+
+
+  constructor(public bot: Bot) {
+    super(['level', 'lvl'], Bot.Role.Everyone);
+  }
+
+
+
+  _instruction(arg: string, cmd?: string, ...args: string[]) {
+    // Commands ANY args NO level
+    if (arg == 'count') return this._sendLevelCount();
+    if (arg == 'list')  return this._listAllLevels();
+    if (arg == 'add')   return (
+      this._addLevel(
+        cmd && args.length
+          ? [cmd, ...args].join(' ').trim()
+          : undefined
+      )
+    );
+    if (arg == 'delete') return this._deleteLevel();
+    if (!this._isValidLevel(arg)) return
+    ;
+    // Commands NO args WITH level
+    const level = +arg;
+    if (!cmd) return this._displayLevel(level)
+    ;
+    // Commands WITH args WITH level
+    if (!args.length) return this.bot.sendMedMsg(
+      `You're missing an expected value for the \`${cmd}\` sub-command.`
+    );
+    const argStr = args.join(' ').trim();
+    if (cmd == 'text')  return this._setLevelText(level, argStr);
+    if (cmd == 'color') return this._setLevelColor(level, args[0]);
   }
 
 

@@ -7,6 +7,27 @@ type strund = string|undefined;
 
 class DictionaryCmd extends Command {
 
+  get help() {
+    return (
+`**List Words**
+Will list all words grouped by their index.
+\`\`\`;dictionary list\`\`\`
+**Words at Index**
+Lists all words at a specific \`<index>\`.
+\`\`\`;dictionary <index>\`\`\`
+**Add Word**
+Will add a \`<word>\` to the dictionary. If an \`<index>\` is provided,
+then it will add a \`<word>\` to that \`<index>\`, if it exists. The
+\`<index>\` is a number that correlates directly to a specific
+location of words in the database. *Listing the words will show you
+their index position.*
+\`\`\`;dictionary add <word>\`\`\` \`\`\`;dictionary add <word> <index>\`\`\`
+**Delete Word**
+Will delete a \`<word>\` if it exists.
+\`\`\`;dictionary del <word>\`\`\``
+    );
+  }
+
 
   constructor(public bot: Bot) {
     super(['dictionary', 'dict'], Bot.Role.Admin);
@@ -26,33 +47,6 @@ class DictionaryCmd extends Command {
       this._listIndex(index);
     }
   }
-
-
-  _help() {
-    this.bot.sendLowMsg(
-`**Aliases**
-\`\`\`${this.aliases.join(', ')}\`\`\`
-**List Words**
-Will list all words grouped by their index.
-\`\`\`;dictionary list\`\`\`
-**Words at Index**
-Lists all words at a specific \`<index>\`.
-\`\`\`;dictionary <index>\`\`\`
-**Add Word**
-Will add a \`<word>\` to the dictionary. If an \`<index>\` is provided,
-then it will add a \`<word>\` to that \`<index>\`, if it exists. The
-\`<index>\` is a number that correlates directly to a specific
-location of words in the database. *Listing the words will show you
-their index position.*
-\`\`\`;dictionary add <word>\`\`\` \`\`\`;dictionary add <word> <index>\`\`\`
-**Delete Word**
-Will delete a \`<word>\` if it exists.
-\`\`\`;dictionary del <word>\`\`\`
-${this.helpFooter}`,
-'Dictionary Command Help'
-    );
-  }
-
 
 
   private _addWord(word: strund, index: strund) {
@@ -85,7 +79,7 @@ ${this.helpFooter}`,
 
   private _delWord(word: strund) {
     if (!word) return this.bot.sendMedMsg(
-      'Ooopsie, you forgot to specify the word to delete!'
+      'Oopsie, you forgot to specify the word to delete!'
     );
     const err = this.bot.sai.dictionary.delWord(word);
     if (err) return this.bot.sendException(

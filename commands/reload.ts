@@ -4,7 +4,28 @@ import Bot from "../bot";
 import TemplateCommand from "./template";
 
 class ReloadCmd extends Command {
-  constructor(public bot: Bot) { super(['reload'], Bot.Role.Admin); }
+
+  get help() {
+    return (
+`**Reloading a Command**
+This allows for the reloading of any \`<cmdname>\` by an
+Admin, in cases where a command stops working or is updated.
+\`\`\`;reload <cmdname>\`\`\`
+**Plus Ultra Reloading**
+The bot itself can also be reloaded with a very special sub-cmd
+made just for it. *This sub-cmd should only be used in case the
+bot is* **stuck in a persistent fail state**.
+
+The commands are very compartmentalized so this should be a very
+rare case where the bot-code itself is failing, independent from
+commands.
+\`\`\`;reload +bot\`\`\``
+    );
+  }
+
+
+  constructor(public bot: Bot) { super(['reload', 'rel', 'rld'], Bot.Role.Admin); }
+
 
   _instruction(cmd: string) {
     const commands = this.bot.commands;

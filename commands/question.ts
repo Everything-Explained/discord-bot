@@ -10,16 +10,9 @@ class QuestionCmd extends Command {
   private _urlEx = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=+$,\w]+@)?[A-Za-z0-9.-]+|(?:www\.|[-;:&=+$,\w]+@)[A-Za-z0-9.-]+)((?:\/[+~%/.\w\-_]*)?\??(?:[-+=&;%@.\w_]*)#?(?:[.!/\\\w]*))?)/
 
 
-
-  constructor(public bot: Bot) {
-    super(['question','qstn', 'q'], Bot.Role.Admin);
-  }
-
-  _help() {
-    this.bot.sendLowMsg(
-`**Aliases**
-\`\`\`${this.aliases.join(', ')}\`\`\`
-**Add Question**
+  get help() {
+    return (
+`**Add Question**
 Checks that the \`<url>\` argument is a valid URL. If the
 URL is valid, then the bot will try to retrieve an Item
 Document resource from the URL and add it to its database.
@@ -35,11 +28,13 @@ on the document they came from.
 **Question Document**
 Generates a raw Item Document from the specified \`<question>\`
 if it exists in the database.
-\`\`\`;question doc <question>\`\`\`
-${this.helpFooter}
-`,
-'Question Command Help'
+\`\`\`;question doc <question>\`\`\``
     );
+  }
+
+
+  constructor(public bot: Bot) {
+    super(['question','qstn', 'q'], Bot.Role.Admin);
   }
 
 
