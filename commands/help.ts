@@ -8,11 +8,16 @@ class HelpCmd extends Command {
 
   get help() {
     return (
-`**Aliases**
-\`\`\`${this.aliases.join(', ')}\`\`\`
-**Command Help**
-Displays the default help text for the specified \`<cmd>\`.
-    `);
+`**Command Help**
+Displays the default help text for the specified \`<cmdname>\`. Any
+time you need to know how to use a command, use the following
+syntax.
+\`\`\`;help <cmdname>\`\`\`
+**Help with Help** *(What?)*
+Using this command without any arguments, will bring up the
+help display that you're reading right now.
+\`\`\`;help\`\`\``
+    );
   }
 
 
@@ -21,7 +26,9 @@ Displays the default help text for the specified \`<cmd>\`.
   }
 
 
-  _instruction(cmdStr: string) {
+  _instruction(cmdStr: string): void {
+    if (!cmdStr) return void this._instruction('help')
+    ;
     const cmd = this.bot.commands.find(c => c.aliases.includes(cmdStr))
     ;
     if (!cmd) return this.bot.sendMedMsg(
