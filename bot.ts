@@ -13,6 +13,7 @@ import QuestionCmd from "./commands/question";
 import LevelCmd from "./commands/level";
 import DictionaryCmd from "./commands/dictionary";
 import CoinFlipCmd from "./commands/coin-flip";
+import HelpCmd from "./commands/help";
 
 
 
@@ -39,7 +40,7 @@ class Bot {
     If this value is ever changed during an async operation, then
     we'll have to fallback to passing the Message object around.
   */
- curMsg!: Message;
+  curMsg!: Message;
 
   get Embed() {
     return MessageEmbed;
@@ -79,6 +80,7 @@ class Bot {
   private _onSaiInit(resp: Error|null) {
     //
   }
+
 
   private async _onMessage(msg: Message) {
     this.curMsg = msg;
@@ -142,6 +144,7 @@ class Bot {
       new (importFresh('./commands/level.js'      ) as typeof LevelCmd)(this),
       new (importFresh('./commands/dictionary.js' ) as typeof DictionaryCmd)(this),
       new (importFresh('./commands/coin-flip.js'  ) as typeof CoinFlipCmd)(this),
+      new (importFresh('./commands/help.js'       ) as typeof HelpCmd)(this),
     ];
   }
 
