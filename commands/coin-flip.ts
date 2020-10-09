@@ -22,9 +22,9 @@ interface RNGData {
 
 
 
-class CoinflipCmd extends Command {
+class CoinFlipCmd extends Command {
 
-  private _rngService = axios.create({
+  private readonly _rngService = axios.create({
     baseURL: 'https://api.random.org/json-rpc/2/invoke',
     headers: {
       'Content-Type': 'application/json'
@@ -32,7 +32,7 @@ class CoinflipCmd extends Command {
     timeout: 5000
   });
 
-  private _rngReqData = {
+  private readonly _rngReqData = {
     "jsonrpc": "2.0",
     "method": "generateIntegerSequences",
     "params": {
@@ -46,16 +46,7 @@ class CoinflipCmd extends Command {
   }
 
   get help() {
-    return (
-`**Heads or Tails?**
-Generates a *Truly Random* coin flip, using an API which
-provides numbers based on atmospheric noise.
-\`\`\`;coinflip\`\`\`
-**How it Works**
-If you're interested in reading more about how it works,
-head on over to https://www.random.org/ and check it out.
-`
-    );
+    return Strings.help();
   }
 
 
@@ -70,12 +61,10 @@ head on over to https://www.random.org/ and check it out.
     ;
     const [n, n2] = numArry;
     // 1 in 1e6 chance
-    if (n2 == 1e6) return this._bot.sendLowMsg(
-      'Umm...:flushed:...the coin landed on.....it\'s SIDE!!'
-    );
+    if (n2 == 1e6) return this._bot.sendLowMsg(Strings.coinOnSide());
     // 1 in 2 chance
     this._bot.sendLowMsg(
-      `The coin landed on...${n == 1 ? 'TAILS' : 'HEADS'}!`
+      Strings.headsOrTails(n == 1 ? 'TAILS' : 'HEADS')
     );
   }
 
@@ -86,16 +75,13 @@ head on over to https://www.random.org/ and check it out.
       const data = resp.data as RNGData
       ;
       if (resp.status != 200) return this._bot.sendHighMsg(
-`The API responded with code: \`${resp.status}\`
-
-**Data**
-\`\`\`${resp.data}\`\`\``
+        Strings.statusError(resp.status, resp.data)
       );
       return data.result.random.data.map(v => v[0]);
     }
     catch (err) {
       this._bot.sendException(
-        'Oops, I had a problem executing the RNG API...',
+        Strings.exception(),
         err.message,
         err.stack
       );
@@ -104,4 +90,37 @@ head on over to https://www.random.org/ and check it out.
   }
 
 }
-export = CoinflipCmd;
+
+
+namespace Strings {
+
+  export const help = () => (
+`**Heads or Tails?**
+Generates a *Truly Random* coin flip, using an API which
+provides numbers based on atmospheric noise.
+\`\`\`;coinflip\`\`\`
+**How it Works**
+If you're interested in reading more about how it works,
+head on over to https://www.random.org/ and check it out.`
+  );
+
+  export const coinOnSide = () => (
+`Umm...:flushed:...the coin landed on.....it's SIDE!!`
+  );
+
+  export const headsOrTails = (val: string) => (
+`The coin landed on...${val}!`
+  );
+
+  export const statusError = (status: number, data: any) => (
+`The API responded with code: \`${status}\`
+
+**Data**
+\`\`\`${data}\`\`\``
+  );
+
+  export const exception = () => (
+`Oops, I had a problem executing the RNG API...`
+  );
+}
+export = CoinFlipCmd;
