@@ -13,15 +13,15 @@ arguments.
     );
   }
 
-  constructor(public bot: Bot) {
-    super(['ping', 'p'], Bot.Role.Admin);
+  constructor(bot: Bot) {
+    super(['ping', 'p'], Bot.Role.Admin, bot);
   }
 
 
   _instructions() {
-    const sock = this.bot.curMsg.client.ws;
-    this.bot.sendLowMsg(`\u2002:clock3: ${sock.ping}ms`);
+    const sock = this._bot.curMsg.client.ws;
+    this._bot.sendLowMsg(`\u2002:clock3: ${sock.ping}ms`);
   }
-}
 
+}
 export = PingCmd;

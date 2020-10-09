@@ -33,8 +33,8 @@ if it exists in the database.
   }
 
 
-  constructor(public bot: Bot) {
-    super(['question','qstn', 'q'], Bot.Role.Admin);
+  constructor(bot: Bot) {
+    super(['question','qstn', 'q'], Bot.Role.Admin, bot);
   }
 
 
@@ -50,10 +50,10 @@ if it exists in the database.
 
   private async _processURL(url: string) {
     const [err, doc] = await this._getQuestionDoc(url);
-    this.bot.curMsg.delete()
+    this._bot.curMsg.delete()
     ;
     if (err) {
-      return !this.bot.sendHighMsg(
+      return !this._bot.sendHighMsg(
         `An Error occurred while interacting with the URL:\n\`${err}\``
       );
     }
@@ -62,14 +62,14 @@ if it exists in the database.
 
 
   private _findQuestion(question: string) {
-    const item = this.bot.sai.ask(question);
+    const item = this._bot.sai.ask(question);
     if (item == RepErrorCode.Question) {
-      return this.bot.sendMedMsg(
+      return this._bot.sendMedMsg(
         'You entered an **Invalid** `URL` or `Question`'
       );
     }
     if (!item) {
-      return this.bot.sendMedMsg(
+      return this._bot.sendMedMsg(
         `Sorry, I couldn't find that question in my database.`
       );
     }
@@ -78,19 +78,19 @@ if it exists in the database.
 
 
   private _getRawDoc(question: string) {
-    const item = this.bot.sai.ask(question);
+    const item = this._bot.sai.ask(question);
     if(item == RepErrorCode.Question) {
-      return this.bot.sendMedMsg(
+      return this._bot.sendMedMsg(
         'That\'s an invalid question.'
       );
     }
     if (!item) {
-      return this.bot.sendMedMsg(
+      return this._bot.sendMedMsg(
         `Sorry, I couldn't find that question in my database.`
       );
     }
-    this.bot.sendLowMsg(
-      `\`\`\`${this.bot.sai.repository.toItemDoc(item)}\`\`\``,
+    this._bot.sendLowMsg(
+      `\`\`\`${this._bot.sai.repository.toItemDoc(item)}\`\`\``,
       'Item Document',
     );
   }
@@ -98,11 +98,11 @@ if it exists in the database.
 
   private _list() {
     const questions =
-      this.bot.sai.questions.reduce((pv, cv) => {
+      this._bot.sai.questions.reduce((pv, cv) => {
         return pv += this._createQuestionList(cv)+ '\n\n';
       }, '')
     ;
-    this.bot.sendLowMsg(
+    this._bot.sendLowMsg(
       `${questions}`,
       'Available Questions'
     );
@@ -110,8 +110,8 @@ if it exists in the database.
 
 
   private _sendQuestionDetails(item: RepoItem) {
-    const questions = this.bot.sai.repository.questionsFromItem(item);
-    this.bot.sendMsg(
+    const questions = this._bot.sai.repository.questionsFromItem(item);
+    this._bot.sendMsg(
       `\`\`\`editId: ${item.ids[0]}\`\`\`\n` +
       `Questions:${this._createQuestionList(questions)}\n` +
       `Answer:\`\`\`${item.answer}\`\`\``,
@@ -136,7 +136,7 @@ if it exists in the database.
 
 
   private _parseQuestion(doc: string) {
-    this.bot.sai.addQuestion(doc)
+    this._bot.sai.addQuestion(doc)
       .then(item => {
         const titleWord = item.dateCreated < item.dateEdited ? 'Edited' : 'Added';
         this._sendQuestionDetails(item);
@@ -150,17 +150,17 @@ if it exists in the database.
     if (typeof err == 'number') {
       const errMsg = saiErrorResponses[err];
       if (!errMsg) {
-        return this.bot.sendHighMsg(
+        return this._bot.sendHighMsg(
           `Code:\`${err}\``,
           'Unknown Parse Error'
         );
       }
-      return this.bot.sendMedMsg(errMsg);
+      return this._bot.sendMedMsg(errMsg);
     }
-    this.bot.sendHighMsg(
+    this._bot.sendHighMsg(
       `Error Message:\n\`${err.message}\`\nError Trace:\n\`\`\`\n${err.stack}\n\`\`\``
     );
   }
-}
 
+}
 export = QuestionCmd;

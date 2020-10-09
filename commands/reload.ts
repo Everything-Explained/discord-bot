@@ -24,32 +24,33 @@ commands.
   }
 
 
-  constructor(public bot: Bot) { super(['reload', 'rel', 'rld'], Bot.Role.Admin); }
+  constructor(bot: Bot) { super(['reload', 'rel', 'rld'], Bot.Role.Admin, bot); }
 
 
   _instructions(cmd: string) {
-    const commands = this.bot.commands;
+    const commands = this._bot.commands;
     const cmdIndex = commands.findIndex(c => c.aliases.includes(cmd))
     ;
     if (this._isReloadingSpecial(cmd)) return
     ;
-    if (!~cmdIndex) return this.bot.sendMedMsg(
+    if (!~cmdIndex) return this._bot.sendMedMsg(
       `\`${cmd}\` is not a valid command. Did you spell it incorrectly?`,
       `Reload Error`
     );
     commands[cmdIndex] =
-      new (importFresh(`./${commands[cmdIndex].aliases[0]}.js`) as typeof TemplateCommand)(this.bot)
+      new (importFresh(`./${commands[cmdIndex].aliases[0]}.js`) as typeof TemplateCommand)(this._bot)
     ;
-    this.bot.sendLowMsg(`\`;${cmd}\` command reloaded!`);
+    this._bot.sendLowMsg(`\`;${cmd}\` command reloaded!`);
   }
 
 
   private _isReloadingSpecial(cmd: string) {
     if (cmd == '+bot') {
-      this.bot.reset();
+      this._bot.reset();
       return true;
     }
     return false;
   }
+
 }
 export = ReloadCmd;

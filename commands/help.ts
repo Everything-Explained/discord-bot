@@ -21,20 +21,20 @@ help display that you're reading right now.
   }
 
 
-  constructor(public bot: Bot) {
-    super(['help', 'hlp', '?'], Bot.Role.Everyone);
+  constructor(bot: Bot) {
+    super(['help', 'hlp', '?'], Bot.Role.Everyone, bot);
   }
 
 
   _instructions(cmdStr: string): void {
     if (!cmdStr) return void this._instructions('help')
     ;
-    const cmd = this.bot.commands.find(c => c.aliases.includes(cmdStr))
+    const cmd = this._bot.commands.find(c => c.aliases.includes(cmdStr))
     ;
-    if (!cmd) return this.bot.sendMedMsg(
+    if (!cmd) return this._bot.sendMedMsg(
       'Sorry, I could\'t find that command.'
     );
-    if (!cmd.help) return this.bot.sendHighMsg(
+    if (!cmd.help) return this._bot.sendHighMsg(
       'Jaeiya is a bad boy!! :face_with_symbols_over_mouth:\n' +
       'He forgot to add a description to the help command. ' +
       '\n\n**Make sure you yell at him thoroughly for me!**.',
@@ -45,7 +45,7 @@ help display that you're reading right now.
 
 
   private _displayHelp(cmd: Command) {
-    this.bot.sendLowMsg(
+    this._bot.sendLowMsg(
       `${this._genHelpHeader(cmd)}\n${cmd.help}\n${this._genHelpFooter(cmd)}`,
       `${this._genHelpTitle(cmd)}`
     );
@@ -80,6 +80,6 @@ help display that you're reading right now.
   private _genHelpTitle(cmd: Command) {
     return `${capitalize(cmd.aliases[0])} Command`;
   }
-}
 
+}
 export = HelpCmd;

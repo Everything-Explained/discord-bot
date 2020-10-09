@@ -41,14 +41,14 @@ words you **meant** to type.
   })
 
 
-  constructor(public bot: Bot) {
-    super(['define', 'def'], Bot.Role.Everyone);
+  constructor(bot: Bot) {
+    super(['define', 'def'], Bot.Role.Everyone, bot);
   }
 
 
   async _instructions(word: string) {
     if (word.length < 4) {
-      this.bot.sendMedMsg(
+      this._bot.sendMedMsg(
         'Sorry, but I can only define words longer than **3** characters.',
         'Word Length Too Short'
       );
@@ -65,10 +65,10 @@ words you **meant** to type.
         const message = this.getDefinitionDisplay(word, defs, examples);
         message.setFooter(`▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔\n\u2022 ${Date.now() - timeNow}ms`)
         ;
-        this.bot.curChannel.send(message);
+        this._bot.curChannel.send(message);
       }
       catch (err) {
-        this.bot.sendException(
+        this._bot.sendException(
           'The DEFINE command has *failed* spectacularly.',
           err.message,
           err.stack
@@ -82,11 +82,11 @@ words you **meant** to type.
     const res = await this.dictionary.get(`${word}?key=${config.apiKeys.dictionary}`)
     ;
     if (res.status > 200) {
-      this.bot.sendHighMsg(res.data, 'Error');
+      this._bot.sendHighMsg(res.data, 'Error');
       return undefined;
     }
     if (typeof res.data[0] == 'string') {
-      this.bot.sendMedMsg(
+      this._bot.sendMedMsg(
         `The word: "${word}" was not found.` +
         `\n\n**Suggestions**${this.getSuggestionDisplay(res.data as string[])}`,
         'Not Found',
@@ -245,6 +245,6 @@ words you **meant** to type.
     }
     return filtered;
   }
-}
 
+}
 export = DefineCmd;

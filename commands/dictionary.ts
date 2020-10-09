@@ -29,8 +29,8 @@ Will delete a \`<word>\` if it exists.
   }
 
 
-  constructor(public bot: Bot) {
-    super(['dictionary', 'dict'], Bot.Role.Admin);
+  constructor(bot: Bot) {
+    super(['dictionary', 'dict'], Bot.Role.Admin, bot);
   }
 
 
@@ -41,7 +41,7 @@ Will delete a \`<word>\` if it exists.
     ;
     if (arg) {
       const index = +arg;
-      if (isNaN(index)) return this.bot.sendMedMsg(
+      if (isNaN(index)) return this._bot.sendMedMsg(
         `I don't understand that argument...:thinks:`
       );
       this._listIndex(index);
@@ -50,72 +50,72 @@ Will delete a \`<word>\` if it exists.
 
 
   private _addWord(word: strund, index: strund) {
-    if (!word) return this.bot.sendMedMsg(
+    if (!word) return this._bot.sendMedMsg(
       'Whoops, you forgot to specify a word to add'
     );
-    if (index && isNaN(+index)) return this.bot.sendMedMsg(
+    if (index && isNaN(+index)) return this._bot.sendMedMsg(
       'Oops, the index you provided is not a number.'
     );
     const err =
-      index ? this.bot.sai.dictionary.addWordToIndex(word, +index)
-            : this.bot.sai.dictionary.addWord(word)
+      index ? this._bot.sai.dictionary.addWordToIndex(word, +index)
+            : this._bot.sai.dictionary.addWord(word)
     ;
     if (err) {
       if (err.message.includes('exists')) {
-        return this.bot.sendMedMsg(
+        return this._bot.sendMedMsg(
           `The word \`${word}\` already exists, sorry!`
         );
       }
-      return this.bot.sendException(
+      return this._bot.sendException(
         'I tried to add the word, but something bad happened...',
         err.message,
         err.stack!
       );
     }
-    this.bot.sai.dictionary.save();
-    this.bot.sendLowMsg('', `\`${word}\` Added!`);
+    this._bot.sai.dictionary.save();
+    this._bot.sendLowMsg('', `\`${word}\` Added!`);
   }
 
 
   private _delWord(word: strund) {
-    if (!word) return this.bot.sendMedMsg(
+    if (!word) return this._bot.sendMedMsg(
       'Oopsie, you forgot to specify the word to delete!'
     );
-    const err = this.bot.sai.dictionary.delWord(word);
-    if (err) return this.bot.sendException(
+    const err = this._bot.sai.dictionary.delWord(word);
+    if (err) return this._bot.sendException(
       'I tried to delete the word, but...this happened.',
       err.message,
       err.stack!
     );
-    this.bot.sai.dictionary.save();
-    this.bot.sendLowMsg('', `\`${word}\` Deleted!`);
+    this._bot.sai.dictionary.save();
+    this._bot.sendLowMsg('', `\`${word}\` Deleted!`);
   }
 
 
   private _listIndex(i: number) {
-    const len = this.bot.sai.dictionary.words.length;
-    if (i >= len) return this.bot.sendMedMsg(
+    const len = this._bot.sai.dictionary.words.length;
+    if (i >= len) return this._bot.sendMedMsg(
       "Sorry, that index doesn't exist."
     );
-    this.bot.sendLowMsg(
-      `\`\`\`\n${this.bot.sai.dictionary.words[i].join(', ')}\n\`\`\``,
+    this._bot.sendLowMsg(
+      `\`\`\`\n${this._bot.sai.dictionary.words[i].join(', ')}\n\`\`\``,
       `Words at Index [ ${i} ]`
     );
   }
 
 
   private _listWords() {
-    const wordsList = this.bot.sai.dictionary.words
+    const wordsList = this._bot.sai.dictionary.words
     ;
     const wordStr = wordsList.reduce((str, words, i) => {
         return str += `${i}: ${words.join(', ')}\n\n`;
       }, '')
     ;
-    this.bot.sendLowMsg(
+    this._bot.sendLowMsg(
       `\`\`\`\n${wordStr}\n\`\`\``,
       'Word List'
     );
   }
-}
 
+}
 export = DictionaryCmd;

@@ -14,29 +14,27 @@ channel*, *hiding off-topic content*, or *just having fun*.
     );
   }
 
-  constructor(public bot: Bot) {
-    super(['wall'], Bot.Role.Everyone);
+  constructor(bot: Bot) {
+    super(['wall'], Bot.Role.Everyone, bot);
   }
 
 
   _instructions(size: string) {
     let lines = +size;
     if (isNaN(lines)) {
-      return this.bot.sendMedMsg(
+      return this._bot.sendMedMsg(
         `\`${size}\` is an invalid size for the wall.`
       );
     }
-    if (lines < 1) return this.bot.sendMedMsg(
+    if (lines < 1) return this._bot.sendMedMsg(
       'Wall size **must** be `greater than 0`'
     );
     let wall = '';
     while (lines--) {
       wall += '‎‎\u200B\n';
     }
-    this.bot.curChannel.send(wall);
+    this._bot.curChannel.send(wall);
   }
 
-
 }
-
 export = WallCmd;

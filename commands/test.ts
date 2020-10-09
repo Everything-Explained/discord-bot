@@ -1,6 +1,7 @@
-import { TextChannel } from 'discord.js';
 import Bot from '../bot';
 import { Command } from '../command';
+
+
 
 class TestCmd extends Command {
 
@@ -12,14 +13,14 @@ be called if you know what it does.`
   }
 
 
-  constructor(public bot: Bot) {
-    super(['test'], Bot.Role.Admin);
+  constructor(bot: Bot) {
+    super(['test'], Bot.Role.Admin, bot);
   }
 
 
   _instructions(...args: string[]) {
-    this.bot.sendLowMsg('hello');
+    this._bot.sendLowMsg('hello');
   }
-}
 
+}
 export = TestCmd;

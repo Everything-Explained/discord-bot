@@ -11,8 +11,8 @@ class TemplateCommand extends Command {
   }
 
 
-  constructor(public bot: Bot) {
-    super(['name'], Bot.Role.Everyone);
+  constructor(bot: Bot) {
+    super(['name'], Bot.Role.Everyone, bot);
   }
 
 

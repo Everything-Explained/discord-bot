@@ -44,8 +44,8 @@ must be in capitalized hex format, e.g. \`#F83CC9\`
   }
 
 
-  constructor(public bot: Bot) {
-    super(['level', 'lvl'], Bot.Role.Everyone);
+  constructor(bot: Bot) {
+    super(['level', 'lvl'], Bot.Role.Everyone, bot);
   }
 
 
@@ -69,7 +69,7 @@ must be in capitalized hex format, e.g. \`#F83CC9\`
     if (!cmd) return this._displayLevel(level)
     ;
     // Commands WITH args WITH level
-    if (!args.length) return this.bot.sendMedMsg(
+    if (!args.length) return this._bot.sendMedMsg(
       `You're missing an expected value for the \`${cmd}\` sub-command.`
     );
     const argStr = args.join(' ').trim();
@@ -79,7 +79,7 @@ must be in capitalized hex format, e.g. \`#F83CC9\`
 
 
   private _displayLevel(level: number) {
-    this.bot.sendMsg(
+    this._bot.sendMsg(
       `${this._levels[level][1]}`,
       `Level ${level}`,
       `${this._levels[level][2]}`
@@ -88,7 +88,7 @@ must be in capitalized hex format, e.g. \`#F83CC9\`
 
 
   private _addLevel(desc: string|undefined) {
-    if (!desc) return this.bot.sendMedMsg(
+    if (!desc) return this._bot.sendMedMsg(
       'Woah there, you forgot to enter a full description for the level!'
     );
     const newLevel = this._levels.length;
@@ -106,7 +106,7 @@ must be in capitalized hex format, e.g. \`#F83CC9\`
     this._levels.splice(lastLevel, 1);
     const freshConfig = importFresh('../config.json') as typeof config;
     this._writeLevelConfig(freshConfig, this._levels, lastLevel, true);
-    this.bot.sendLowMsg(
+    this._bot.sendLowMsg(
       '', `Level ${lastLevel} Deleted`
     );
   }
@@ -121,7 +121,7 @@ must be in capitalized hex format, e.g. \`#F83CC9\`
 
 
   private _setLevelColor(level: number, color: string) {
-    if (!color.match(this._colorEx)) return this.bot.sendMedMsg(
+    if (!color.match(this._colorEx)) return this._bot.sendMedMsg(
       `Sorry, that's an invalid HEX color. All HEX colors should look like this: ` +
       '`#AA034F`. Notice that there are no lowercase letters and the length ' +
       'of it is *exactly* **7**.\n\n' +
@@ -141,13 +141,13 @@ must be in capitalized hex format, e.g. \`#F83CC9\`
   private _isValidLevel(level: string) {
     const levelNum = +level
     ;
-    if (isNaN(levelNum)) return !!this.bot.sendMedMsg(
+    if (isNaN(levelNum)) return !!this._bot.sendMedMsg(
       'You entered a level that is **Not a Number**.'
     );
     const realLevel = this._levels.length - 1
     ;
     if (levelNum < 0 || levelNum > realLevel) {
-      return !!this.bot.sendMedMsg(
+      return !!this._bot.sendMedMsg(
         `Invalid Level Number: \`${level}\`` +
         `\nLevels must be in the range \`0 to ${realLevel}\``
       );
@@ -158,7 +158,7 @@ must be in capitalized hex format, e.g. \`#F83CC9\`
 
   private _sendLevelCount() {
     const len = this._levels.length;
-    this.bot.sendLowMsg(
+    this._bot.sendLowMsg(
       `There are currently **${len}** defined levels.\n` +
       `Level **${len - 1}** is currently the last level.`
     );
@@ -177,7 +177,7 @@ must be in capitalized hex format, e.g. \`#F83CC9\`
     this._levels.forEach((v, i) => {
       const [lvl, text, color] = v;
       setTimeout(
-        () => this.bot.sendMsg(text, `Level ${lvl}`, color),
+        () => this._bot.sendMsg(text, `Level ${lvl}`, color),
         i * 1200
       );
     });
@@ -195,6 +195,6 @@ must be in capitalized hex format, e.g. \`#F83CC9\`
     ;
     writeFileSync('./config.json', JSON.stringify(newConfig, null, 2));
   }
-}
 
+}
 export = LevelCmd;

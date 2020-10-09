@@ -3,6 +3,8 @@ import { Command } from '../command';
 import axios from 'axios';
 import config from '../config.json';
 
+
+
 interface RNGData {
   jsonrpc: string;
   result: {
@@ -17,6 +19,7 @@ interface RNGData {
   },
   id: number;
 }
+
 
 
 class CoinflipCmd extends Command {
@@ -56,8 +59,8 @@ head on over to https://www.random.org/ and check it out.
   }
 
 
-  constructor(public bot: Bot) {
-    super(['coin-flip', 'coinflip', 'flipcoin', 'flip'], Bot.Role.Everyone);
+  constructor(bot: Bot) {
+    super(['coin-flip', 'coinflip', 'flipcoin', 'flip'], Bot.Role.Everyone, bot);
   }
 
 
@@ -67,11 +70,11 @@ head on over to https://www.random.org/ and check it out.
     ;
     const [n, n2] = numArry;
     // 1 in 1e6 chance
-    if (n2 == 1e6) return this.bot.sendLowMsg(
+    if (n2 == 1e6) return this._bot.sendLowMsg(
       'Umm...:flushed:...the coin landed on.....it\'s SIDE!!'
     );
     // 1 in 2 chance
-    this.bot.sendLowMsg(
+    this._bot.sendLowMsg(
       `The coin landed on...${n == 1 ? 'TAILS' : 'HEADS'}!`
     );
   }
@@ -82,7 +85,7 @@ head on over to https://www.random.org/ and check it out.
       const resp = await this._rngService.post('', this._rngReqData);
       const data = resp.data as RNGData
       ;
-      if (resp.status != 200) return this.bot.sendHighMsg(
+      if (resp.status != 200) return this._bot.sendHighMsg(
 `The API responded with code: \`${resp.status}\`
 
 **Data**
@@ -91,7 +94,7 @@ head on over to https://www.random.org/ and check it out.
       return data.result.random.data.map(v => v[0]);
     }
     catch (err) {
-      this.bot.sendException(
+      this._bot.sendException(
         'Oops, I had a problem executing the RNG API...',
         err.message,
         err.stack
@@ -99,6 +102,6 @@ head on over to https://www.random.org/ and check it out.
       return undefined;
     }
   }
-}
 
+}
 export = CoinflipCmd;
