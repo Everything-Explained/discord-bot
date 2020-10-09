@@ -17,7 +17,7 @@ export abstract class Command {
   ) {}
 
 
-  protected abstract _instruction(...args: string[]): void;
+  protected abstract _instructions(...args: string[]): void;
 
 
   exec(admin = false, ...args: string[]) {
@@ -28,6 +28,6 @@ export abstract class Command {
         permissions use this command.`
       );
     }
-    this._instruction(...args);
+    this._instructions(...args);
   }
 }

@@ -17,7 +17,7 @@ be called if you know what it does.`
   }
 
 
-  _instruction(...args: string[]) {
+  _instructions(...args: string[]) {
     this.bot.sendLowMsg('hello');
   }
 }

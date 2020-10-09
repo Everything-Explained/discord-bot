@@ -27,7 +27,7 @@ commands.
   constructor(public bot: Bot) { super(['reload', 'rel', 'rld'], Bot.Role.Admin); }
 
 
-  _instruction(cmd: string) {
+  _instructions(cmd: string) {
     const commands = this.bot.commands;
     const cmdIndex = commands.findIndex(c => c.aliases.includes(cmd))
     ;

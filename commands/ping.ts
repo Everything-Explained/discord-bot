@@ -18,7 +18,7 @@ arguments.
   }
 
 
-  _instruction() {
+  _instructions() {
     const sock = this.bot.curMsg.client.ws;
     this.bot.sendLowMsg(`\u2002:clock3: ${sock.ping}ms`);
   }

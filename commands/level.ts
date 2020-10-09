@@ -50,7 +50,7 @@ must be in capitalized hex format, e.g. \`#F83CC9\`
 
 
 
-  _instruction(arg: string, cmd?: string, ...args: string[]) {
+  _instructions(arg: string, cmd?: string, ...args: string[]) {
     // Commands ANY args NO level
     if (arg == 'count') return this._sendLevelCount();
     if (arg == 'list')  return this._listAllLevels();
@@ -97,7 +97,7 @@ must be in capitalized hex format, e.g. \`#F83CC9\`
     );
     const freshConfig = importFresh('../config.json') as typeof config;
     this._writeLevelConfig(freshConfig, this._levels, newLevel, true);
-    this._instruction(`${newLevel}`);
+    this._instructions(`${newLevel}`);
   }
 
 
@@ -116,7 +116,7 @@ must be in capitalized hex format, e.g. \`#F83CC9\`
     this._levels[level][1] = text;
     const freshConfig = importFresh('../config.json') as typeof config;
     this._writeLevelConfig(freshConfig, this._levels[level], level);
-    this._instruction(`${level}`);
+    this._instructions(`${level}`);
   }
 
 
@@ -134,7 +134,7 @@ must be in capitalized hex format, e.g. \`#F83CC9\`
     this._levels[level][2] = color;
     const freshConfig = importFresh('../config.json') as typeof config;
     this._writeLevelConfig(freshConfig, this._levels[level], level);
-    this._instruction(`${level}`);
+    this._instructions(`${level}`);
   }
 
 

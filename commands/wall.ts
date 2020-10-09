@@ -19,7 +19,7 @@ channel*, *hiding off-topic content*, or *just having fun*.
   }
 
 
-  _instruction(size: string) {
+  _instructions(size: string) {
     let lines = +size;
     if (isNaN(lines)) {
       return this.bot.sendMedMsg(

@@ -34,7 +34,7 @@ Will delete a \`<word>\` if it exists.
   }
 
 
-  _instruction(arg: strund, word: strund, index: strund) {
+  _instructions(arg: strund, word: strund, index: strund) {
     if (arg == 'add')  return this._addWord(word, index);
     if (arg == 'del')  return this._delWord(word);
     if (arg == 'list') return this._listWords()

@@ -61,7 +61,7 @@ head on over to https://www.random.org/ and check it out.
   }
 
 
-  async _instruction() {
+  async _instructions() {
     const numArry = await this._getRandomNumbers();
     if (!numArry) return
     ;

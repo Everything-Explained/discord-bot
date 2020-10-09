@@ -16,7 +16,7 @@ class TemplateCommand extends Command {
   }
 
 
-  _instruction() {
+  _instructions() {
     // Implementation goes here
   }
 

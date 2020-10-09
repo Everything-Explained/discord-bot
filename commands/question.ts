@@ -39,7 +39,7 @@ if it exists in the database.
 
 
 
-  _instruction(arg: string, ...args: string[]) {
+  _instructions(arg: string, ...args: string[]) {
     if (arg == 'doc')          return this._getRawDoc(args.join(' ').trim());
     if (arg == 'list')         return this._list();
     if (this._urlEx.test(arg)) return void (this._processURL(arg))

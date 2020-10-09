@@ -46,7 +46,7 @@ words you **meant** to type.
   }
 
 
-  async _instruction(word: string) {
+  async _instructions(word: string) {
     if (word.length < 4) {
       this.bot.sendMedMsg(
         'Sorry, but I can only define words longer than **3** characters.',

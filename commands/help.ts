@@ -26,8 +26,8 @@ help display that you're reading right now.
   }
 
 
-  _instruction(cmdStr: string): void {
-    if (!cmdStr) return void this._instruction('help')
+  _instructions(cmdStr: string): void {
+    if (!cmdStr) return void this._instructions('help')
     ;
     const cmd = this.bot.commands.find(c => c.aliases.includes(cmdStr))
     ;
