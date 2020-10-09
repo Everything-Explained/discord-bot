@@ -6,19 +6,7 @@ import { capitalize } from '../utils';
 
 class HelpCmd extends Command {
 
-  get help() {
-    return (
-`**Command Help**
-Displays the default help text for the specified \`<cmdname>\`. Any
-time you need to know how to use a command, use the following
-syntax.
-\`\`\`;help <cmdname>\`\`\`
-**Help with Help** *(What?)*
-Using this command without any arguments, will bring up the
-help display that you're reading right now.
-\`\`\`;help\`\`\``
-    );
-  }
+  get help() { return Strings.help(); }
 
 
   constructor(bot: Bot) {
@@ -29,16 +17,13 @@ help display that you're reading right now.
   _instructions(cmdStr: string): void {
     if (!cmdStr) return void this._instructions('help')
     ;
-    const cmd = this._bot.commands.find(c => c.aliases.includes(cmdStr))
-    ;
+    const cmd = this._bot.commands.find(c => c.aliases.includes(cmdStr));
     if (!cmd) return this._bot.sendMedMsg(
-      'Sorry, I could\'t find that command.'
+      Strings.missingCmd(cmdStr)
     );
     if (!cmd.help) return this._bot.sendHighMsg(
-      'Jaeiya is a bad boy!! :face_with_symbols_over_mouth:\n' +
-      'He forgot to add a description to the help command. ' +
-      '\n\n**Make sure you yell at him thoroughly for me!**.',
-      'Command Has No Help'
+      Strings.missingHelp(cmd.aliases[0]),
+      'Command has no help'
     );
     this._displayHelp(cmd);
   }
@@ -71,7 +56,7 @@ help display that you're reading right now.
       ), ''
     );
     return cmd.aliases.length > 1
-      ? `*Don't forget that* ${aliasList} *are interchangeable.*`
+      ? Strings.footer(aliasList)
       : ''
     ;
   }
@@ -81,5 +66,39 @@ help display that you're reading right now.
     return `${capitalize(cmd.aliases[0])} Command`;
   }
 
+}
+
+
+
+namespace Strings {
+
+  const curseEmoji = ':face_with_symbols_over_mouth:';
+
+  export const help = () => (
+`**Command Help**
+Displays the default help text for the specified \`<cmdname>\`. Any
+time you need to know how to use a command, use the following
+syntax.
+\`\`\`;help <cmdname>\`\`\`
+**Help with Help** *(What?)*
+Using this command without any arguments, will bring up the
+help display that you're reading right now.
+\`\`\`;help\`\`\``
+  );
+
+  export const missingCmd = (cmd: string) => (
+`:thinking:...\`${cmd}\` isn't a command that I'm aware of.`
+  );
+
+  export const missingHelp = (cmd: string) => (
+`Jaeiya is a bad boy!! ${curseEmoji} He forgot to add a description
+to the \`${cmd}\` command.
+
+**Make sure you yell at him thoroughly for me!**`
+  );
+
+  export const footer = (aliasList: string) => (
+`*Don't forget that* ${aliasList} *are interchangeable.*`
+  );
 }
 export = HelpCmd;
