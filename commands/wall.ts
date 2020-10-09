@@ -3,16 +3,7 @@ import { Command } from '../command';
 
 class WallCmd extends Command {
 
-  get help() {
-    return (
-`**Making a Wall**
-Sends a \`<size>\` amount of invisible lines, which when
-large enough, creates the illusion of an invisible wall
-of text. This is useful for giving the illusion of a *blank
-channel*, *hiding off-topic content*, or *just having fun*.
-\`\`\`;wall <size>\`\`\``
-    );
-  }
+  get help() { return Strings.help(); }
 
   constructor(bot: Bot) {
     super(['wall'], Bot.Role.Everyone, bot);
@@ -23,11 +14,11 @@ channel*, *hiding off-topic content*, or *just having fun*.
     let lines = +size;
     if (isNaN(lines)) {
       return this._bot.sendMedMsg(
-        `\`${size}\` is an invalid size for the wall.`
+        Strings.sizeNaN(size)
       );
     }
     if (lines < 1) return this._bot.sendMedMsg(
-      'Wall size **must** be `greater than 0`'
+      Strings.sizeOutOfBounds()
     );
     let wall = '';
     while (lines--) {
@@ -36,5 +27,26 @@ channel*, *hiding off-topic content*, or *just having fun*.
     this._bot.curChannel.send(wall);
   }
 
+}
+
+
+
+namespace Strings {
+  export const help = () => (
+`**Making a Wall**
+Sends a \`<size>\` amount of invisible lines, which when
+large enough, creates the illusion of an invisible wall
+of text. This is useful for giving the illusion of a *blank
+channel*, *hiding off-topic content*, or *just having fun*.
+\`\`\`;wall <size>\`\`\``
+  );
+
+  export const sizeNaN = (size: string) => (
+`\`${size}\` is an invalid size for the wall.`
+  );
+
+  export const sizeOutOfBounds = () => (
+'Wall size **must** be `greater than 0`'
+  );
 }
 export = WallCmd;
