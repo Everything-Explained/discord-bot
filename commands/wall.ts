@@ -5,25 +5,27 @@ class WallCmd extends Command {
 
   get help() { return Strings.help(); }
 
+
   constructor(bot: Bot) {
     super(['wall'], Bot.Role.Everyone, bot);
   }
 
 
   _instructions(size: string) {
-    let lines = +size;
-    if (isNaN(lines)) {
-      return this._bot.sendMedMsg(
-        Strings.sizeNaN(size)
-      );
-    }
-    if (lines < 1) return this._bot.sendMedMsg(
-      Strings.sizeOutOfBounds()
+    const lines = +size;
+    if (isNaN(lines)) return (
+      this._bot.sendMedMsg(Strings.sizeNaN(size))
     );
+    if (lines < 1) return (
+      this._bot.sendMedMsg(Strings.sizeOutOfBounds())
+    );
+    this._sendWall(lines);
+  }
+
+
+  private _sendWall(lines: number) {
     let wall = '';
-    while (lines--) {
-      wall += '‎‎\u200B\n';
-    }
+    while (lines--) wall += '‎‎\u200B\n';
     this._bot.curChannel.send(wall);
   }
 
