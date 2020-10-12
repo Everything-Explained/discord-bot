@@ -6,7 +6,7 @@ import { capitalize } from '../utils';
 
 class HelpCmd extends Command {
 
-  get help() { return Strings.help(); }
+  get help() { return Strings.getHelp(); }
 
 
   constructor(bot: Bot) {
@@ -20,11 +20,11 @@ class HelpCmd extends Command {
       this._bot.commands.find(c => c.aliases.includes(cmdAsStr))
     ;
     if (!cmd) return (
-      this._bot.sendMedMsg(Strings.missingCmd(cmdAsStr))
+      this._bot.sendMedMsg(Strings.getIsMissingCmd(cmdAsStr))
     );
     if (!cmd.help) return (
       this._bot.sendHighMsg(
-        Strings.missingHelp(cmd.aliases[0]),
+        Strings.getIsMissingHelp(cmd.aliases[0]),
         'Command has no help'
       )
     );
@@ -63,7 +63,7 @@ class HelpCmd extends Command {
       )
     ;
     return cmd.aliases.length > 1
-      ? Strings.footer(aliasList)
+      ? Strings.getHelpFooter(aliasList)
       : ''
     ;
   }
@@ -81,7 +81,7 @@ namespace Strings {
 
   const curseEmoji = ':face_with_symbols_over_mouth:';
 
-  export const help = () => (
+  export const getHelp = () => (
 `**Command Help**
 Displays the default help text for the specified \`<cmdname>\`. Any
 time you need to know how to use a command, use the following
@@ -93,18 +93,18 @@ help display that you're reading right now.
 \`\`\`;help\`\`\``
   );
 
-  export const missingCmd = (cmd: string) => (
+  export const getIsMissingCmd = (cmd: string) => (
 `:thinking:...\`${cmd}\` isn't a command that I'm aware of.`
   );
 
-  export const missingHelp = (cmd: string) => (
+  export const getIsMissingHelp = (cmd: string) => (
 `Jaeiya is a bad boy!! ${curseEmoji} He forgot to add a description
 to the \`${cmd}\` command.
 
 **Make sure you yell at him thoroughly for me!**`
   );
 
-  export const footer = (aliasList: string) => (
+  export const getHelpFooter = (aliasList: string) => (
 `*Don't forget that* ${aliasList} *are interchangeable.*`
   );
 }
