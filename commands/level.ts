@@ -11,7 +11,7 @@ type MessageLevel = [index: number, desc: string, color: string];
 class LevelCmd extends Command {
   // Load fresh on first call
   private _levels = this._getMessageLevels();
-  // Matches #F03A8E
+  // Matches HEX color format: #F03A8E
   private _colorEx = /^#(([0-9A-F]){2}){3}$/g;
   private _lvlListDelay = 1200; // Milliseconds
 
