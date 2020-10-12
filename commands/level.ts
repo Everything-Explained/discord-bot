@@ -5,7 +5,7 @@ import config from '../config.json';
 import { writeFileSync } from 'fs';
 
 
-type MessageLevels = [index: number, desc: string, color: string][];
+type MessageLevel = [index: number, desc: string, color: string];
 
 
 class LevelCmd extends Command {
@@ -13,6 +13,7 @@ class LevelCmd extends Command {
   private _levels = this._getMessageLevels();
   // Matches #F03A8E
   private _colorEx = /^#(([0-9A-F]){2}){3}$/g;
+  private _lvlListDelay = 1200; // Milliseconds
 
   get help() { return Strings.getHelp(); }
 
@@ -22,32 +23,22 @@ class LevelCmd extends Command {
   }
 
 
-  _instructions(arg: string, cmd?: string, ...args: string[]) {
-    // Commands ANY args NO level
-    if (arg == 'count') return this._sendLevelCount();
-    if (arg == 'list')  return this._listAllLevels();
-    if (arg == 'add')   return (
-      this._addLevel(
-        cmd && args.length
-          // cmd is also part of the description.
-          ? [cmd, ...args].join(' ').trim()
-          : undefined
-      )
+  _instructions(subCmd: string, ...args: string[]) {
+    if (!subCmd) return (
+      this._bot.sendMedMsg(Strings.getNoSubCmd())
     );
-    if (arg == 'delete') return this._deleteLevel();
-    if (!this._isValidLevel(arg)) return
-    ;
-    // Commands NO args WITH level
-    const level = +arg;
-    if (!cmd) return this._displayLevel(level)
-    ;
-    // Commands WITH args WITH level
-    if (!args.length) return this._bot.sendMedMsg(
-      `You're missing an expected value for the \`${cmd}\` sub-command.`
+    if (subCmd == 'count') return this._sendLevelCount();
+    if (subCmd == 'list')  return this._listAllLevels();
+    if (subCmd == 'add')   return (
+      // All remaining args is description
+      this._addLevel(args.length > 1 ? args.join(' ') : undefined)
     );
-    const argStr = args.join(' ').trim();
-    if (cmd == 'text')  return this._setLevelText(level, argStr);
-    if (cmd == 'color') return this._setLevelColor(level, args[0]);
+    if (subCmd == 'del') return this._deleteLevel()
+    ;
+    if (!this._isValidLevel(subCmd)) return;
+    const level = +subCmd;
+    if (this._isSettingLevel(level, ...args)) return;
+    this._displayLevel(level);
   }
 
 
@@ -66,6 +57,7 @@ class LevelCmd extends Command {
     );
     const newLevel = this._levels.length;
     this._levels.push(
+      // Copies color of previous level, for new level
       [newLevel, desc, this._levels[newLevel - 1][2]]
     );
     this._writeLevelConfig(this._levels);
@@ -81,14 +73,35 @@ class LevelCmd extends Command {
   }
 
 
-  private _setLevelText(level: number, text: string) {
-    this._levels[level][1] = text;
+  private _isSettingLevel(level: number, ...args: string[]) {
+    if (!args.length) return false
+    ;
+    const setType = args.shift()!;
+    if (setType == 'set-desc') return (
+      !this._setLevelDesc(level, args.join(' '))
+    );
+    if (setType == 'set-color') return (
+      !this._setLevelColor(level, args[0])
+    );
+    this._bot.sendMedMsg(Strings.getInvalidLvlSetting(setType));
+    return true;
+  }
+
+
+  private _setLevelDesc(level: number, desc: string|undefined) {
+    if (!desc) return (
+      this._bot.sendMedMsg(Strings.getMissingLevelDesc())
+    );
+    this._levels[level][1] = desc;
     this._writeLevelConfig(this._levels);
     this._instructions(`${level}`);
   }
 
 
-  private _setLevelColor(level: number, color: string) {
+  private _setLevelColor(level: number, color: string|undefined) {
+    if (!color) return (
+      this._bot.sendMedMsg(Strings.getMissingLevelColor())
+    );
     if (!color.match(this._colorEx)) return (
       this._bot.sendMedMsg(Strings.getInvalidHex())
     );
@@ -98,15 +111,15 @@ class LevelCmd extends Command {
   }
 
 
-  private _isValidLevel(level: string) {
-    const userLvlNum = +level;
-    if (isNaN(userLvlNum)) return (
+  private _isValidLevel(lvlStr: string) {
+    const level = +lvlStr;
+    if (isNaN(level)) return (
       !!this._bot.sendMedMsg(Strings.getLevelNaN())
     );
     const maxLevel = this._levels.length - 1;
-    if (userLvlNum < 0 || userLvlNum > maxLevel)
-      return !!this._bot.sendMedMsg(Strings.getBadLevelRange(maxLevel))
-    ;
+    if (level < 0 || level > maxLevel) return (
+      !!this._bot.sendMedMsg(Strings.getBadLevelRange(maxLevel))
+    );
     return true;
   }
 
@@ -118,22 +131,28 @@ class LevelCmd extends Command {
 
 
   private _getMessageLevels() {
-    return this._getConfig().bot.message_levels as MessageLevels;
+    return this._getConfig().bot.message_levels as MessageLevel[];
   }
 
 
   private _listAllLevels() {
-    this._levels.forEach((v, i) => {
-      const [lvl, text, color] = v;
-      setTimeout(
-        () => this._bot.sendMsg(text, `Level ${lvl}`, color),
-        i * 1200
-      );
-    });
+    this._levels.forEach(
+      (level, i) =>
+        this._sendDelayedLvlInfo(level, i * this._lvlListDelay)
+    );
   }
 
 
-  private _writeLevelConfig(levels: MessageLevels) {
+  private _sendDelayedLvlInfo(level: MessageLevel, delay: number) {
+    const [index, description, color] = level;
+    setTimeout(
+      () => this._bot.sendMsg(description, `Level ${index}`, color),
+      delay
+    );
+  }
+
+
+  private _writeLevelConfig(levels: MessageLevel[]) {
     const latestConfig = this._getConfig();
     latestConfig.bot.message_levels = levels;
     writeFileSync('./config.json', JSON.stringify(latestConfig, null, 2));
@@ -180,8 +199,27 @@ must be in capitalized hex format, e.g. \`#F83CC9\`
 \`\`\`;level <level> color <color>\`\`\``
   );
 
+  export const getNoSubCmd = () => (
+`This command requires sub-commands to work properly. If
+you need help with this command, type \`;help level\`.`
+  );
+
+  export const getLvlNaN = () => (
+`You entered an unknown sub-command. Did you mean to
+enter a **level** or **command**?`
+  );
+
   export const getMissingLevelDesc = () => (
 `You need to provide a description for the level.`
+  );
+
+  export const getMissingLevelColor = () => (
+`You forgot to specify the color value.`
+  );
+
+  export const getInvalidLvlSetting = (setting: string) => (
+`Sorry, I don't recognize the setting: \`${setting}\`. I can **only**
+set the _description_ and _color_ of a level.`
   );
 
   export const getInvalidHex = () => (
