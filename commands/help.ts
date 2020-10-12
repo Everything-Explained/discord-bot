@@ -14,16 +14,19 @@ class HelpCmd extends Command {
   }
 
 
-  _instructions(cmdStr: string): void {
-    if (!cmdStr) return void this._instructions('help')
+  _instructions(cmdAsStr: string): void {
+    if (!cmdAsStr) return this._instructions('help');
+    const cmd =
+      this._bot.commands.find(c => c.aliases.includes(cmdAsStr))
     ;
-    const cmd = this._bot.commands.find(c => c.aliases.includes(cmdStr));
-    if (!cmd) return this._bot.sendMedMsg(
-      Strings.missingCmd(cmdStr)
+    if (!cmd) return (
+      this._bot.sendMedMsg(Strings.missingCmd(cmdAsStr))
     );
-    if (!cmd.help) return this._bot.sendHighMsg(
-      Strings.missingHelp(cmd.aliases[0]),
-      'Command has no help'
+    if (!cmd.help) return (
+      this._bot.sendHighMsg(
+        Strings.missingHelp(cmd.aliases[0]),
+        'Command has no help'
+      )
     );
     this._displayHelp(cmd);
   }
@@ -38,23 +41,27 @@ class HelpCmd extends Command {
 
 
   private _genHelpHeader(cmd: Command) {
-    const aliases = `\`\`\`${cmd.aliases.map(v => `;${v}`).join(', ')}\`\`\``
+    const aliases =
+      `\`\`\`${cmd.aliases.map(v => `;${v}`).join(', ')}\`\`\``
     ;
-    return cmd.aliases.length > 1
-      ? `**Aliases**\n${aliases}`
-      : ''
-    ;
+    return (
+      cmd.aliases.length > 1
+        ? `**Aliases**\n${aliases}`
+        : ''
+    );
   }
 
 
   private _genHelpFooter(cmd: Command) {
-    const aliasList = cmd.aliases.reduce(
-      (str, alias, i) => (
-        i == cmd.aliases.length - 1
-          ? str += `*and* \`;${alias}\``
-          : str += `\`;${alias}\` `
-      ), ''
-    );
+    const aliasList =
+      cmd.aliases.reduce(
+        (str, alias, i) => (
+          i == cmd.aliases.length - 1
+            ? str += `*and* \`;${alias}\``
+            : str += `\`;${alias}\` `
+        ), ''
+      )
+    ;
     return cmd.aliases.length > 1
       ? Strings.footer(aliasList)
       : ''
