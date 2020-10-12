@@ -1,3 +1,5 @@
+import { Dictionary } from '@noumenae/sai/dist/database/dictionary';
+import { error } from 'console';
 import Bot from '../bot';
 import { Command } from '../command';
 
@@ -7,11 +9,14 @@ type strund = string|undefined;
 
 class DictionaryCmd extends Command {
 
+  private _dictionary: Dictionary;
+
   get help() { return Strings.getHelp(); }
 
 
   constructor(bot: Bot) {
     super(['dictionary', 'dict'], Bot.Role.Admin, bot);
+    this._dictionary = bot.sai.dictionary;
   }
 
 
@@ -34,25 +39,14 @@ class DictionaryCmd extends Command {
     if (!word) return (
       this._bot.sendMedMsg(Strings.getMissingWord())
     );
-    if (index && isNaN(+index)) return this._bot.sendMedMsg(
-      Strings.getIndexNaN(index)
+    if (index && isNaN(+index)) return (
+      this._bot.sendMedMsg(Strings.getIndexNaN(index))
     );
     const err =
-      index ? this._bot.sai.dictionary.addWordToIndex(word, +index)
-            : this._bot.sai.dictionary.addWord(word)
+      index ? this._dictionary.addWordToIndex(word, +index)
+            : this._dictionary.addWord(word)
     ;
-    if (err) {
-      if (err.message.includes('exists')) {
-        return this._bot.sendMedMsg(
-          Strings.getWordExists(word)
-        );
-      }
-      return this._bot.sendException(
-        Strings.getFailAddWord(),
-        err.message,
-        err.stack!
-      );
-    }
+    if (err) return this.sendWordExistsOrException(err, word);
     this._bot.sai.dictionary.save();
     this._bot.sendLowMsg('', `\`${word}\` Added!`);
   }
@@ -95,6 +89,18 @@ class DictionaryCmd extends Command {
     this._bot.sendLowMsg(
       `\`\`\`\n${wordStr}\n\`\`\``,
       'Word List'
+    );
+  }
+
+
+  private sendWordExistsOrException(err: Error, word: string) {
+    if (err.message.includes('exists')) return (
+      this._bot.sendMedMsg(Strings.getWordExists(word))
+    );
+    this._bot.sendException(
+      Strings.getFailAddWord(),
+      err.message,
+      err.stack!
     );
   }
 
