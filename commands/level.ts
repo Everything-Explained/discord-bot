@@ -189,14 +189,14 @@ a \`<description>\` to be set for the level during creation.
 **Delete Level**
 Deletes the *last existing* level only. This preserves the
 order of the levels.
-\`\`\`;level delete\`\`\`
-**Edit Level Text**
+\`\`\`;level del\`\`\`
+**Edit Level Description**
 Updates the \`<description>\` of an existing \`<level>\`.
-\`\`\`;level <level> text <description>\`\`\`
+\`\`\`;level <level> set-desc <description>\`\`\`
 **Edit Level Color**
 Updates the border \`<color>\` of a \`<level>\`. The \`<color>\`
 must be in capitalized hex format, e.g. \`#F83CC9\`
-\`\`\`;level <level> color <color>\`\`\``
+\`\`\`;level <level> set-color <color>\`\`\``
   );
 
   export const getNoSubCmd = () => (
