@@ -1,5 +1,4 @@
 import { Dictionary } from '@noumenae/sai/dist/database/dictionary';
-import { error } from 'console';
 import Bot from '../bot';
 import { Command } from '../command';
 
@@ -53,14 +52,16 @@ class DictionaryCmd extends Command {
 
 
   private _delWord(word: strund) {
-    if (!word) return this._bot.sendMedMsg(
-      Strings.getMissingWord()
+    if (!word) return (
+      this._bot.sendMedMsg(Strings.getMissingWord())
     );
-    const err = this._bot.sai.dictionary.delWord(word);
-    if (err) return this._bot.sendException(
-      Strings.getFailDeleteWord(),
-      err.message,
-      err.stack!
+    const err = this._dictionary.delWord(word);
+    if (err) return (
+      this._bot.sendException(
+        Strings.getFailDeleteWord(),
+        err.message,
+        err.stack!
+      )
     );
     this._bot.sai.dictionary.save();
     this._bot.sendLowMsg('', `\`${word}\` Deleted!`);
@@ -69,8 +70,8 @@ class DictionaryCmd extends Command {
 
   private _listIndex(i: number) {
     const len = this._bot.sai.dictionary.words.length;
-    if (i >= len) return this._bot.sendMedMsg(
-      Strings.getListIndexNoExist()
+    if (i >= len) return (
+      this._bot.sendMedMsg(Strings.getListIndexNoExist())
     );
     this._bot.sendLowMsg(
       `\`\`\`\n${this._bot.sai.dictionary.words[i].join(', ')}\n\`\`\``,
@@ -80,9 +81,9 @@ class DictionaryCmd extends Command {
 
 
   private _listWords() {
-    const wordsList = this._bot.sai.dictionary.words
-    ;
-    const wordStr = wordsList.reduce((str, words, i) => {
+    const wordsList = this._bot.sai.dictionary.words;
+    const wordStr =
+      wordsList.reduce((str, words, i) => {
         return str += `${i}: ${words.join(', ')}\n\n`;
       }, '')
     ;
