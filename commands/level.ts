@@ -5,49 +5,21 @@ import config from '../config.json';
 import { writeFileSync } from 'fs';
 
 
+type MessageLevels = [index: number, desc: string, color: string][];
+
+
 class LevelCmd extends Command {
   // Load fresh on first call
   private _levels = this._getMessageLevels();
+  // Matches #F03A8E
   private _colorEx = /^#(([0-9A-F]){2}){3}$/g;
 
-  get help() {
-    return (
-`**Count Level**
-Gives you a count of how many levels are currently available.
-\`\`\`;level count\`\`\`
-**List Levels**
-Lists all levels one after the other, with a certain delay. If
-a level fails to appear at first, it's because Discord is not
-able to keep up with the messages.
-\`\`\`;level list\`\`\`
-**Lookup Level**
-Returns the description and number of the \`<level>\` you
-you entered. This is useful if you've forgotten which level
-is which and just need to refresh your memory.
-\`\`\`;level <level>\`\`\`
-**Add Level**
-Adds a new level **after** the current last level. It requires
-a \`<description>\` to be set for the level during creation.
-\`\`\`;level add <description>\`\`\`
-**Delete Level**
-Deletes the *last existing* level only. This preserves the
-order of the levels.
-\`\`\`;level delete\`\`\`
-**Edit Level Text**
-Updates the \`<description>\` of an existing \`<level>\`.
-\`\`\`;level <level> text <description>\`\`\`
-**Edit Level Color**
-Updates the border \`<color>\` of a \`<level>\`. The \`<color>\`
-must be in capitalized hex format, e.g. \`#F83CC9\`
-\`\`\`;level <level> color <color>\`\`\``
-    );
-  }
+  get help() { return Strings.getHelp(); }
 
 
   constructor(bot: Bot) {
     super(['level', 'lvl'], Bot.Role.Everyone, bot);
   }
-
 
 
   _instructions(arg: string, cmd?: string, ...args: string[]) {
@@ -57,6 +29,7 @@ must be in capitalized hex format, e.g. \`#F83CC9\`
     if (arg == 'add')   return (
       this._addLevel(
         cmd && args.length
+          // cmd is also part of the description.
           ? [cmd, ...args].join(' ').trim()
           : undefined
       )
@@ -88,15 +61,14 @@ must be in capitalized hex format, e.g. \`#F83CC9\`
 
 
   private _addLevel(desc: string|undefined) {
-    if (!desc) return this._bot.sendMedMsg(
-      'Woah there, you forgot to enter a full description for the level!'
+    if (!desc) return (
+      this._bot.sendMedMsg(Strings.getMissingLevelDesc())
     );
     const newLevel = this._levels.length;
     this._levels.push(
       [newLevel, desc, this._levels[newLevel - 1][2]]
     );
-    const freshConfig = importFresh('../config.json') as typeof config;
-    this._writeLevelConfig(freshConfig, this._levels, newLevel, true);
+    this._writeLevelConfig(this._levels);
     this._instructions(`${newLevel}`);
   }
 
@@ -104,72 +76,49 @@ must be in capitalized hex format, e.g. \`#F83CC9\`
   private _deleteLevel() {
     const lastLevel = this._levels.length - 1;
     this._levels.splice(lastLevel, 1);
-    const freshConfig = importFresh('../config.json') as typeof config;
-    this._writeLevelConfig(freshConfig, this._levels, lastLevel, true);
-    this._bot.sendLowMsg(
-      '', `Level ${lastLevel} Deleted`
-    );
+    this._writeLevelConfig(this._levels);
+    this._bot.sendLowMsg('', `Level ${lastLevel} Deleted`);
   }
 
 
   private _setLevelText(level: number, text: string) {
     this._levels[level][1] = text;
-    const freshConfig = importFresh('../config.json') as typeof config;
-    this._writeLevelConfig(freshConfig, this._levels[level], level);
+    this._writeLevelConfig(this._levels);
     this._instructions(`${level}`);
   }
 
 
   private _setLevelColor(level: number, color: string) {
-    if (!color.match(this._colorEx)) return this._bot.sendMedMsg(
-      `Sorry, that's an invalid HEX color. All HEX colors should look like this: ` +
-      '`#AA034F`. Notice that there are no lowercase letters and the length ' +
-      'of it is *exactly* **7**.\n\n' +
-      'Check out the color picker here: https://coolors.co/\n\n' +
-      'Click the color swatch on the right and move the controls around to ' +
-      `select your color. Once you're done, you can copy the code that's ` +
-      'generated.',
-      ':nerd:'
+    if (!color.match(this._colorEx)) return (
+      this._bot.sendMedMsg(Strings.getInvalidHex())
     );
     this._levels[level][2] = color;
-    const freshConfig = importFresh('../config.json') as typeof config;
-    this._writeLevelConfig(freshConfig, this._levels[level], level);
+    this._writeLevelConfig(this._levels);
     this._instructions(`${level}`);
   }
 
 
   private _isValidLevel(level: string) {
-    const levelNum = +level
-    ;
-    if (isNaN(levelNum)) return !!this._bot.sendMedMsg(
-      'You entered a level that is **Not a Number**.'
+    const userLvlNum = +level;
+    if (isNaN(userLvlNum)) return (
+      !!this._bot.sendMedMsg(Strings.getLevelNaN())
     );
-    const realLevel = this._levels.length - 1
+    const maxLevel = this._levels.length - 1;
+    if (userLvlNum < 0 || userLvlNum > maxLevel)
+      return !!this._bot.sendMedMsg(Strings.getBadLevelRange(maxLevel))
     ;
-    if (levelNum < 0 || levelNum > realLevel) {
-      return !!this._bot.sendMedMsg(
-        `Invalid Level Number: \`${level}\`` +
-        `\nLevels must be in the range \`0 to ${realLevel}\``
-      );
-    }
     return true;
   }
 
 
   private _sendLevelCount() {
     const len = this._levels.length;
-    this._bot.sendLowMsg(
-      `There are currently **${len}** defined levels.\n` +
-      `Level **${len - 1}** is currently the last level.`
-    );
+    this._bot.sendLowMsg(Strings.getLevelCount(len));
   }
 
 
   private _getMessageLevels() {
-    return (
-      (importFresh('../config.json') as typeof config)
-        .bot.message_levels as [index: number, desc: string, color: string][]
-    );
+    return this._getConfig().bot.message_levels as MessageLevels;
   }
 
 
@@ -184,17 +133,81 @@ must be in capitalized hex format, e.g. \`#F83CC9\`
   }
 
 
-  private _writeLevelConfig(
-    newConfig: typeof config,
-    data: any,
-    level: number,
-    all = false
-  ){
-    if (all) newConfig.bot.message_levels        = data;
-    else     newConfig.bot.message_levels[level] = data
-    ;
-    writeFileSync('./config.json', JSON.stringify(newConfig, null, 2));
+  private _writeLevelConfig(levels: MessageLevels) {
+    const latestConfig = this._getConfig();
+    latestConfig.bot.message_levels = levels;
+    writeFileSync('./config.json', JSON.stringify(latestConfig, null, 2));
   }
 
+
+  private _getConfig() {
+    return importFresh('../config.json') as typeof config;
+  }
+
+}
+
+
+
+namespace Strings {
+  export const getHelp = () => (
+`**Count Level**
+Gives you a count of how many levels are currently available.
+\`\`\`;level count\`\`\`
+**List Levels**
+Lists all levels one after the other, with a certain delay. If
+a level fails to appear at first, it's because Discord is not
+able to keep up with the messages.
+\`\`\`;level list\`\`\`
+**Lookup Level**
+Returns the description and number of the \`<level>\` you
+you entered. This is useful if you've forgotten which level
+is which and just need to refresh your memory.
+\`\`\`;level <level>\`\`\`
+**Add Level**
+Adds a new level **after** the current last level. It requires
+a \`<description>\` to be set for the level during creation.
+\`\`\`;level add <description>\`\`\`
+**Delete Level**
+Deletes the *last existing* level only. This preserves the
+order of the levels.
+\`\`\`;level delete\`\`\`
+**Edit Level Text**
+Updates the \`<description>\` of an existing \`<level>\`.
+\`\`\`;level <level> text <description>\`\`\`
+**Edit Level Color**
+Updates the border \`<color>\` of a \`<level>\`. The \`<color>\`
+must be in capitalized hex format, e.g. \`#F83CC9\`
+\`\`\`;level <level> color <color>\`\`\``
+  );
+
+  export const getMissingLevelDesc = () => (
+`You need to provide a description for the level.`
+  );
+
+  export const getInvalidHex = () => (
+`Sorry, that's an invalid HEX color. All HEX colors should look
+like this: \`#AA034F\`. Notice that there are no lowercase letters
+and the length of it is *exactly* **7**.
+
+Check out the color picker here: https://coolors.co/
+
+Click the color swatch on the right and move the controls around to
+select your color. Once you're done, you can copy the code that's
+generated. :nerd:'`
+  );
+
+  export const getLevelNaN = () => (
+`You entered a level that is **Not a Number**.`
+  );
+
+  export const getBadLevelRange = (maxLevel: number) => (
+`The only available levels are from \`0\` to \`${maxLevel}\`. To see all
+the levels, you can type \`;level list\`.`
+  );
+
+  export const getLevelCount = (levelLength: number) => (
+`There are currently \`${levelLength}\` defined levels, but the
+level range is between \`0\` and \`${levelLength - 1}\`.`
+  );
 }
 export = LevelCmd;
