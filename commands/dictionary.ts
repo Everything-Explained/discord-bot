@@ -7,9 +7,7 @@ type strund = string|undefined;
 
 class DictionaryCmd extends Command {
 
-  get help() {
-    return Strings.help();
-  }
+  get help() { return Strings.getHelp(); }
 
 
   constructor(bot: Bot) {
@@ -18,26 +16,26 @@ class DictionaryCmd extends Command {
 
 
   _instructions(arg: strund, word: strund, index: strund) {
+    if (!arg) return (
+      this._bot.sendMedMsg(Strings.getMissingArg(this.aliases[1]))
+    );
     if (arg == 'add')  return this._addWord(word, index);
     if (arg == 'del')  return this._delWord(word);
     if (arg == 'list') return this._listWords()
     ;
-    if (arg) {
-      const index = +arg;
-      if (isNaN(index)) return this._bot.sendMedMsg(
-        Strings.argNaN()
-      );
-      this._listIndex(index);
-    }
+    if (isNaN(+arg))
+      return this._bot.sendMedMsg(Strings.getArgNaN())
+    ;
+    this._listIndex(+arg);
   }
 
 
   private _addWord(word: strund, index: strund) {
-    if (!word) return this._bot.sendMedMsg(
-      Strings.missingWord()
+    if (!word) return (
+      this._bot.sendMedMsg(Strings.getMissingWord())
     );
     if (index && isNaN(+index)) return this._bot.sendMedMsg(
-      Strings.indexNaN(index)
+      Strings.getIndexNaN(index)
     );
     const err =
       index ? this._bot.sai.dictionary.addWordToIndex(word, +index)
@@ -46,11 +44,11 @@ class DictionaryCmd extends Command {
     if (err) {
       if (err.message.includes('exists')) {
         return this._bot.sendMedMsg(
-          Strings.wordExists(word)
+          Strings.getWordExists(word)
         );
       }
       return this._bot.sendException(
-        Strings.failAddWord(),
+        Strings.getFailAddWord(),
         err.message,
         err.stack!
       );
@@ -62,11 +60,11 @@ class DictionaryCmd extends Command {
 
   private _delWord(word: strund) {
     if (!word) return this._bot.sendMedMsg(
-      Strings.missingWord()
+      Strings.getMissingWord()
     );
     const err = this._bot.sai.dictionary.delWord(word);
     if (err) return this._bot.sendException(
-      Strings.failDeleteWord(),
+      Strings.getFailDeleteWord(),
       err.message,
       err.stack!
     );
@@ -78,7 +76,7 @@ class DictionaryCmd extends Command {
   private _listIndex(i: number) {
     const len = this._bot.sai.dictionary.words.length;
     if (i >= len) return this._bot.sendMedMsg(
-      Strings.listIndexNoExist()
+      Strings.getListIndexNoExist()
     );
     this._bot.sendLowMsg(
       `\`\`\`\n${this._bot.sai.dictionary.words[i].join(', ')}\n\`\`\``,
@@ -104,7 +102,7 @@ class DictionaryCmd extends Command {
 
 
 namespace Strings {
-  export const help = () => (
+  export const getHelp = () => (
 `**List Words**
 Will list all words grouped by their index.
 \`\`\`;dictionary list\`\`\`
@@ -123,31 +121,36 @@ Will delete a \`<word>\` if it exists.
 \`\`\`;dictionary del <word>\`\`\``
   );
 
-  export const argNaN = () => (
+  export const getArgNaN = () => (
 `I don't understand that argument...:thinking:`
   );
 
-  export const indexNaN = (index: number|string) => (
+  export const getMissingArg = (cmd: string) => (
+`This command requires sub-commands to work. If you need
+help type \`;help ${cmd}\` for a list of all valid sub-commands.`
+  );
+
+  export const getIndexNaN = (index: number|string) => (
 `Oops, the index you provided: \`${index}\` is not a number.`
   );
 
-  export const wordExists = (word: string) => (
+  export const getWordExists = (word: string) => (
 `Umm..the word \`${word}\` already exists.`
   );
 
-  export const failAddWord = () => (
+  export const getFailAddWord = () => (
 `I tried to add the word, but something bad happened...`
   );
 
-  export const missingWord = () => (
+  export const getMissingWord = () => (
 `Whoops, you forgot to specify a word!`
   );
 
-  export const failDeleteWord = () => (
+  export const getFailDeleteWord = () => (
 `I tried to delete the word, but...this happened.`
   );
 
-  export const listIndexNoExist = () => (
+  export const getListIndexNoExist = () => (
 `Sorry, that index doesn't exist.`
   );
 
