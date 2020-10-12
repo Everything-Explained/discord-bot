@@ -3,7 +3,7 @@ import { Command } from '../command';
 
 class WallCmd extends Command {
 
-  get help() { return Strings.help(); }
+  get help() { return Strings.getHelp(); }
 
 
   constructor(bot: Bot) {
@@ -14,10 +14,10 @@ class WallCmd extends Command {
   _instructions(size: string) {
     const lines = +size;
     if (isNaN(lines)) return (
-      this._bot.sendMedMsg(Strings.sizeNaN(size))
+      this._bot.sendMedMsg(Strings.getSizeNaN(size))
     );
     if (lines < 1) return (
-      this._bot.sendMedMsg(Strings.sizeOutOfBounds())
+      this._bot.sendMedMsg(Strings.getSizeOutOfBounds())
     );
     this._sendWall(lines);
   }
@@ -34,7 +34,7 @@ class WallCmd extends Command {
 
 
 namespace Strings {
-  export const help = () => (
+  export const getHelp = () => (
 `**Making a Wall**
 Sends a \`<size>\` amount of invisible lines, which when
 large enough, creates the illusion of an invisible wall
@@ -43,11 +43,11 @@ channel*, *hiding off-topic content*, or *just having fun*.
 \`\`\`;wall <size>\`\`\``
   );
 
-  export const sizeNaN = (size: string) => (
+  export const getSizeNaN = (size: string) => (
 `\`${size}\` is an invalid size for the wall.`
   );
 
-  export const sizeOutOfBounds = () => (
+  export const getSizeOutOfBounds = () => (
 'Wall size **must** be `greater than 0`'
   );
 }
