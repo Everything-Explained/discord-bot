@@ -1,4 +1,4 @@
-import { Dictionary } from '@noumenae/sai/dist/database/dictionary';
+import { ParityErrorCode, ParityManager } from '@noumenae/sai/dist/database/parity_manager';
 import Bot from '../bot';
 import { Command } from '../command';
 
@@ -8,14 +8,14 @@ type strund = string|undefined;
 
 class DictionaryCmd extends Command {
 
-  private _dictionary: Dictionary;
+  private _parityMngr: ParityManager;
 
   get help() { return Strings.getHelp(); }
 
 
   constructor(bot: Bot) {
     super(['dictionary', 'dict'], Bot.Role.Admin, bot);
-    this._dictionary = bot.sai.dictionary;
+    this._parityMngr = bot.sai.parityManager;
   }
 
 
@@ -42,11 +42,11 @@ class DictionaryCmd extends Command {
       this._bot.sendMedMsg(Strings.getIndexNaN(index))
     );
     const err =
-      index ? this._dictionary.addWordToIndex(word, +index)
-            : this._dictionary.addWord(word)
+      index ? this._parityMngr.addWordToIndex(word, +index)
+            : this._parityMngr.addWord(word)
     ;
-    if (err) return this.sendWordExistsOrException(err, word);
-    this._bot.sai.dictionary.save();
+    if (typeof err == 'number') return this.sendWordOrIndexError(err, word);
+    this._parityMngr.save();
     this._bot.sendLowMsg('', `\`${word}\` Added!`);
   }
 
@@ -55,35 +55,30 @@ class DictionaryCmd extends Command {
     if (!word) return (
       this._bot.sendMedMsg(Strings.getMissingWord())
     );
-    const err = this._dictionary.delWord(word);
-    if (err) return (
-      this._bot.sendException(
-        Strings.getFailDeleteWord(),
-        err.message,
-        err.stack!
-      )
+    const result = this._parityMngr.delWord(word);
+    if (result == ParityErrorCode.WordNotFound) return (
+      this._bot.sendMedMsg(Strings.getFailDeleteWord(word))
     );
-    this._bot.sai.dictionary.save();
+    this._parityMngr.save();
     this._bot.sendLowMsg('', `\`${word}\` Deleted!`);
   }
 
 
   private _listIndex(i: number) {
-    const len = this._bot.sai.dictionary.words.length;
+    const len = this._parityMngr.words.length;
     if (i >= len) return (
       this._bot.sendMedMsg(Strings.getListIndexNoExist())
     );
     this._bot.sendLowMsg(
-      `\`\`\`\n${this._bot.sai.dictionary.words[i].join(', ')}\n\`\`\``,
+      `\`\`\`\n${this._parityMngr.words[i].join(', ')}\n\`\`\``,
       `Words at Index [ ${i} ]`
     );
   }
 
 
   private _listWords() {
-    const wordsList = this._bot.sai.dictionary.words;
     const wordStr =
-      wordsList.reduce((str, words, i) => {
+      this._parityMngr.words.reduce((str, words, i) => {
         return str += `${i}: ${words.join(', ')}\n\n`;
       }, '')
     ;
@@ -94,15 +89,16 @@ class DictionaryCmd extends Command {
   }
 
 
-  private sendWordExistsOrException(err: Error, word: string) {
-    if (err.message.includes('exists')) return (
-      this._bot.sendMedMsg(Strings.getWordExists(word))
-    );
-    this._bot.sendException(
-      Strings.getFailAddWord(),
-      err.message,
-      err.stack!
-    );
+  private sendWordOrIndexError(code: ParityErrorCode, wordOrIndex: string) {
+    if (code == ParityErrorCode.AlreadyExists)
+      return this._bot.sendMedMsg(Strings.getWordExists(wordOrIndex))
+    ;
+    if (code == ParityErrorCode.IndexNotFound)
+      return this._bot.sendMedMsg(Strings.getIndexNotFound(+wordOrIndex))
+    ;
+    if (code == ParityErrorCode.IndexLessThanZero)
+      return this._bot.sendMedMsg(Strings.getInvalidIndex(+wordOrIndex))
+    ;
   }
 
 }
@@ -145,6 +141,16 @@ help type \`;help ${cmd}\` for a list of all valid sub-commands.`
 `Umm..the word \`${word}\` already exists.`
   );
 
+  export const getIndexNotFound = (index: number) => (
+`Whoops, the index \`${index}\` does not appear to exist
+in my database.`
+  );
+
+  export const getInvalidIndex = (index: number) => (
+`Uh oh, index: \`${index}\` is not a valid index. Were you
+trying to enter something else?`
+  );
+
   export const getFailAddWord = () => (
 `I tried to add the word, but something bad happened...`
   );
@@ -153,8 +159,9 @@ help type \`;help ${cmd}\` for a list of all valid sub-commands.`
 `Whoops, you forgot to specify a word!`
   );
 
-  export const getFailDeleteWord = () => (
-`I tried to delete the word, but...this happened.`
+  export const getFailDeleteWord = (word: string) => (
+`Oops, the word: \`${word}\` does not appear to be in my
+database...`
   );
 
   export const getListIndexNoExist = () => (
