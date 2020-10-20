@@ -80,11 +80,7 @@ class CoinFlipCmd extends Command {
       return data.result.random.data.map(v => v[0]);
     }
     catch (err) {
-      this._bot.sendException(
-        Strings.exception(),
-        err.message,
-        err.stack
-      );
+      this._bot.sendException(Strings.exception(), err);
       return undefined;
     }
   }

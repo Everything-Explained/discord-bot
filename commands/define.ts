@@ -68,11 +68,7 @@ words you **meant** to type.
         this._bot.curChannel.send(message);
       }
       catch (err) {
-        this._bot.sendException(
-          'The DEFINE command has *failed* spectacularly.',
-          err.message,
-          err.stack
-        );
+        this._bot.sendException('The DEFINE command has *failed* spectacularly.', err);
       }
     }
   }
