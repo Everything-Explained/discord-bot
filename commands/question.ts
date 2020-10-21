@@ -39,13 +39,11 @@ class QuestionCmd extends Command {
     this._parseQuestion(doc);
   }
 
-
   private _findQuestion(question: string) {
     const item = this._tryGetQuestion(question);
     if (!item) return;
     this._sendQuestionDetails(item);
   }
-
 
   private _getRawDoc(question: string) {
     const item = this._tryGetQuestion(question);
@@ -55,7 +53,6 @@ class QuestionCmd extends Command {
       'Inquiry Document',
     );
   }
-
 
   private _tryGetQuestion(question: string) {
     const item = this._bot.sai.ask(question);
@@ -67,7 +64,6 @@ class QuestionCmd extends Command {
     );
     return item;
   }
-
 
   private _list() {
     const questions =
@@ -81,7 +77,6 @@ class QuestionCmd extends Command {
     );
   }
 
-
   private _sendQuestionDetails(item: Inquiry) {
     const questions = this._bot.sai.inquiryManager.getQuestionsFrom(item);
     this._bot.sendMsg(
@@ -93,11 +88,9 @@ class QuestionCmd extends Command {
     );
   }
 
-
   private _createQuestionList(questions: string[]) {
     return questions.map(v => `\`\`\`${v}\`\`\``).join('');
   }
-
 
   private async _getQuestionDoc(url: string): Promise<[error: string, doc: string]> {
     const res = await axios.get(url);
@@ -106,7 +99,6 @@ class QuestionCmd extends Command {
     }
     return [res.statusText, ''];
   }
-
 
   private _parseQuestion(doc: string) {
     this._bot.sai.addInquiry(doc)
@@ -117,7 +109,6 @@ class QuestionCmd extends Command {
       .catch(err => this._catchParseError(err))
     ;
   }
-
 
   private _catchParseError(err: InqErrorCode|NodeJS.ErrnoException) {
     if (typeof err == 'number') {

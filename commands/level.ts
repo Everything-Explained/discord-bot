@@ -5,7 +5,10 @@ import config from '../config.json';
 import { writeFileSync } from 'fs';
 
 
+
 type MessageLevel = [index: number, desc: string, color: string];
+
+
 
 
 class LevelCmd extends Command {
@@ -41,7 +44,6 @@ class LevelCmd extends Command {
     this._displayLevel(level);
   }
 
-
   private _displayLevel(level: number) {
     this._bot.sendMsg(
       `${this._levels[level][1]}`,
@@ -49,7 +51,6 @@ class LevelCmd extends Command {
       `${this._levels[level][2]}`
     );
   }
-
 
   private _addLevel(desc: string|undefined) {
     if (!desc) return (
@@ -64,14 +65,12 @@ class LevelCmd extends Command {
     this._instructions(`${newLevel}`);
   }
 
-
   private _deleteLevel() {
     const lastLevel = this._levels.length - 1;
     this._levels.splice(lastLevel, 1);
     this._writeLevelConfig(this._levels);
     this._bot.sendLowMsg('', `Level ${lastLevel} Deleted`);
   }
-
 
   private _isSettingLevel(level: number, ...args: string[]) {
     if (!args.length) return false
@@ -87,7 +86,6 @@ class LevelCmd extends Command {
     return true;
   }
 
-
   private _setLevelDesc(level: number, desc: string|undefined) {
     if (!desc) return (
       this._bot.sendMedMsg(Strings.getMissingLevelDesc())
@@ -96,7 +94,6 @@ class LevelCmd extends Command {
     this._writeLevelConfig(this._levels);
     this._instructions(`${level}`);
   }
-
 
   private _setLevelColor(level: number, color: string|undefined) {
     if (!color) return (
@@ -110,7 +107,6 @@ class LevelCmd extends Command {
     this._instructions(`${level}`);
   }
 
-
   private _isValidLevel(lvlStr: string) {
     const level = +lvlStr;
     if (isNaN(level)) return (
@@ -123,17 +119,14 @@ class LevelCmd extends Command {
     return true;
   }
 
-
   private _sendLevelCount() {
     const len = this._levels.length;
     this._bot.sendLowMsg(Strings.getLevelCount(len));
   }
 
-
   private _getMessageLevels() {
     return this._getConfig().bot.message_levels as MessageLevel[];
   }
-
 
   private _listAllLevels() {
     this._levels.forEach(
@@ -141,7 +134,6 @@ class LevelCmd extends Command {
         this._sendDelayedLvlInfo(level, i * this._lvlListDelay)
     );
   }
-
 
   private _sendDelayedLvlInfo(level: MessageLevel, delay: number) {
     const [index, description, color] = level;
@@ -151,13 +143,11 @@ class LevelCmd extends Command {
     );
   }
 
-
   private _writeLevelConfig(levels: MessageLevel[]) {
     const latestConfig = this._getConfig();
     latestConfig.bot.message_levels = levels;
     writeFileSync('./config.json', JSON.stringify(latestConfig, null, 2));
   }
-
 
   private _getConfig() {
     return importFresh('../config.json') as typeof config;

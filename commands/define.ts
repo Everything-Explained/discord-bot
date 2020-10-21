@@ -27,9 +27,7 @@ class DefineCmd extends Command {
   private _colonEx  = /\{bc\}/g;
   private _orEx     = /[a-z]+\|[a-z]+/g;
 
-  get help() {
-    return Strings.getHelp();
-  }
+  get help() { return Strings.getHelp(); }
 
   dictionary = axios.create({
     baseURL: 'https://dictionaryapi.com/api/v3/references/collegiate/json/',

@@ -3,7 +3,10 @@ import Bot from '../bot';
 import { Command } from '../command';
 
 
+
 type strund = string|undefined;
+
+
 
 
 class DictionaryCmd extends Command {
@@ -33,7 +36,6 @@ class DictionaryCmd extends Command {
     this._listIndex(+arg);
   }
 
-
   private _addWord(word: strund, index: strund) {
     if (!word) return (
       this._bot.sendMedMsg(Strings.getMissingWord())
@@ -50,7 +52,6 @@ class DictionaryCmd extends Command {
     this._bot.sendLowMsg('', `\`${word}\` Added!`);
   }
 
-
   private _delWord(word: strund) {
     if (!word) return (
       this._bot.sendMedMsg(Strings.getMissingWord())
@@ -63,7 +64,6 @@ class DictionaryCmd extends Command {
     this._bot.sendLowMsg('', `\`${word}\` Deleted!`);
   }
 
-
   private _listIndex(i: number) {
     const len = this._parityMngr.words.length;
     if (i >= len) return (
@@ -74,7 +74,6 @@ class DictionaryCmd extends Command {
       `Words at Index [ ${i} ]`
     );
   }
-
 
   private _listWords() {
     const wordStr =
@@ -87,7 +86,6 @@ class DictionaryCmd extends Command {
       'Word List'
     );
   }
-
 
   private sendWordOrIndexError(code: ParityErrorCode, wordOrIndex: string) {
     if (code == ParityErrorCode.AlreadyExists)

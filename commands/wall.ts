@@ -1,6 +1,9 @@
 import Bot from '../bot';
 import { Command } from '../command';
 
+
+
+
 class WallCmd extends Command {
 
   get help() { return Strings.getHelp(); }
@@ -21,7 +24,6 @@ class WallCmd extends Command {
     );
     this._sendWall(lines);
   }
-
 
   private _sendWall(lines: number) {
     let wall = '';

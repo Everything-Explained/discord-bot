@@ -4,6 +4,8 @@ import { capitalize } from '../utils';
 
 
 
+
+
 class HelpCmd extends Command {
 
   get help() { return Strings.getHelp(); }
@@ -31,14 +33,12 @@ class HelpCmd extends Command {
     this._displayHelp(cmd);
   }
 
-
   private _displayHelp(cmd: Command) {
     this._bot.sendLowMsg(
       `${this._genHelpHeader(cmd)}\n${cmd.help}\n${this._genHelpFooter(cmd)}`,
       `${this._genHelpTitle(cmd)}`
     );
   }
-
 
   private _genHelpHeader(cmd: Command) {
     const aliases =
@@ -50,7 +50,6 @@ class HelpCmd extends Command {
         : ''
     );
   }
-
 
   private _genHelpFooter(cmd: Command) {
     const aliasList =
@@ -67,7 +66,6 @@ class HelpCmd extends Command {
       : ''
     ;
   }
-
 
   private _genHelpTitle(cmd: Command) {
     return `${capitalize(cmd.aliases[0])} Command`;

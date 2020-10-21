@@ -6,9 +6,7 @@ import { Command } from '../command';
 
 class TemplateCommand extends Command {
 
-  get help() {
-    return '';
-  }
+  get help() { return Strings.getHelp(); }
 
 
   constructor(bot: Bot) {
@@ -20,5 +18,12 @@ class TemplateCommand extends Command {
     // Implementation goes here
   }
 
+}
+
+
+namespace Strings {
+  export const getHelp = () => (
+``
+  );
 }
 export = TemplateCommand;

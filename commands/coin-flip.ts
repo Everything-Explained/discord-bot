@@ -45,9 +45,7 @@ class CoinFlipCmd extends Command {
     "id": 1337
   }
 
-  get help() {
-    return Strings.help();
-  }
+  get help() { return Strings.help(); }
 
 
   constructor(bot: Bot) {
