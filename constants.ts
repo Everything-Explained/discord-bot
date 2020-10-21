@@ -1,4 +1,4 @@
-import { RepErrorCode } from "@noumenae/sai/dist/database/repository";
+import { InqErrorCode } from "@noumenae/sai/dist/database/inquiry_manager";
 
 
 
@@ -47,9 +47,9 @@ questions:
  - question 2
 \`\`\`
 **Invalid Questions**
-Make sure your questions also do not contain anything but
-*small-case letters*. Also, your questions must contain a *query word*
-like: \`what\`, \`where\`, \`who\` etc...to start the question.`
+Make sure your questions do not contain anything but *small-case
+letters*. Also, your questions must contain a *query word* like: \`what\`,
+\`where\`, \`who\` etc...to start the question.`
 ;
 
 
@@ -124,16 +124,16 @@ retrieve the *working* id.`
 
 
 export const saiErrorResponses: string[] = [];
-saiErrorResponses[ RepErrorCode.Empty       ] = emptyError;
-saiErrorResponses[ RepErrorCode.HeadSyntax  ] = headSyntaxError;
-saiErrorResponses[ RepErrorCode.Head        ] = headError;
-saiErrorResponses[ RepErrorCode.Question    ] = questionError;
-saiErrorResponses[ RepErrorCode.Title       ] = titleError;
-saiErrorResponses[ RepErrorCode.Author      ] = authorError;
-saiErrorResponses[ RepErrorCode.Answer      ] = answerError;
-saiErrorResponses[ RepErrorCode.Level       ] = levelError;
-saiErrorResponses[ RepErrorCode.DuplicateId ] = duplicateError;
-saiErrorResponses[ RepErrorCode.BadEditId   ] = editIdError;
+saiErrorResponses[ InqErrorCode.Empty       ] = emptyError;
+saiErrorResponses[ InqErrorCode.HeadSyntax  ] = headSyntaxError;
+saiErrorResponses[ InqErrorCode.Head        ] = headError;
+saiErrorResponses[ InqErrorCode.Question    ] = questionError;
+saiErrorResponses[ InqErrorCode.Title       ] = titleError;
+saiErrorResponses[ InqErrorCode.Author      ] = authorError;
+saiErrorResponses[ InqErrorCode.Answer      ] = answerError;
+saiErrorResponses[ InqErrorCode.Level       ] = levelError;
+saiErrorResponses[ InqErrorCode.DuplicateId ] = duplicateError;
+saiErrorResponses[ InqErrorCode.BadEditId   ] = editIdError;
 
 
 
