@@ -6,6 +6,8 @@ import config from '../config.json';
 import Bot, { MessagePriority } from '../bot';
 
 
+
+
 type DefinitionText = [string, string|{ t: string; }[][]];
 type SenseObj       = { sn: string; dt: DefinitionText };
 type PseqObj        = ['sense', SenseObj];
@@ -17,6 +19,7 @@ interface DefinitionData {
 
 
 
+
 class DefineCmd extends Command {
 
   private _markupEx = /\{\/?[a-z]{2}\}|\{[adlink_]+\||\{[a-z]{2}|\}|\|\}|\|\|/g;
@@ -25,14 +28,7 @@ class DefineCmd extends Command {
   private _orEx     = /[a-z]+\|[a-z]+/g;
 
   get help() {
-    return (
-`**Get the Definition of a Word**
-If the \`<word>\` exists, it will use the Merriam Webster
-dictionary to define the \`<word>\` you provided. If it can't
-find the \`<word>\`, then it will return a list of possible
-words you **meant** to type.
-\`\`\`;define <word>\`\`\``
-    );
+    return Strings.getHelp();
   }
 
   dictionary = axios.create({
@@ -47,13 +43,9 @@ words you **meant** to type.
 
 
   async _instructions(word: string) {
-    if (word.length < 4) {
-      this._bot.sendMedMsg(
-        'Sorry, but I can only define words longer than **3** characters.',
-        'Word Length Too Short'
-      );
-      return;
-    }
+    if (word.length < 4) return (
+      this._bot.sendMedMsg(Strings.getShortWordLength())
+    );
     const timeNow = Date.now();
     const data = await this.getDefinition(word);
     if (data) {
@@ -68,11 +60,10 @@ words you **meant** to type.
         this._bot.curChannel.send(message);
       }
       catch (err) {
-        this._bot.sendException('The DEFINE command has *failed* spectacularly.', err);
+        this._bot.sendException(Strings.getDefineFailed(), err);
       }
     }
   }
-
 
   async getDefinition(word: string) {
     const res = await this.dictionary.get(`${word}?key=${config.apiKeys.dictionary}`)
@@ -82,16 +73,16 @@ words you **meant** to type.
       return undefined;
     }
     if (typeof res.data[0] == 'string') {
+      const suggestions = this.getSuggestionDisplay(res.data);
       this._bot.sendMedMsg(
         `The word: "${word}" was not found.` +
-        `\n\n**Suggestions**${this.getSuggestionDisplay(res.data as string[])}`,
+        `\n\n**Suggestions**${suggestions}`,
         'Not Found',
       );
       return undefined;
     }
     return res.data as DefinitionData[];
   }
-
 
   getDefinitionDisplay(word: string, defs: string[][], examples: string[]) {
     const border = '▔▔▔▔▔▔▔▔▔▔▔▔▔';
@@ -116,12 +107,10 @@ words you **meant** to type.
     );
   }
 
-
   getSuggestionDisplay(suggestions: string[]) {
     // TODO - Create two MessageEmbed{} fields that show up to 10 words.
     return `\n\u2002\u2002${suggestions.slice(0, 5).join('\n\u2002\u2002')}`;
   }
-
 
   formatDefs(defs: string[][], word: string) {
     return defs.map(v => (
@@ -131,13 +120,11 @@ words you **meant** to type.
     )));
   }
 
-
   formatExamples(examples: string[], word: string) {
     return this.formatLines(examples.map(v => (
       this.emphasize(word, capitalize(this._filterMarkup(v)))
     )));
   }
-
 
   emphasize(word: string, def: string) {
     const wordEx = new RegExp(`(${word}|${capitalize(word)})[a-z]*`, 'g');
@@ -147,7 +134,6 @@ words you **meant** to type.
     }
     return def;
   }
-
 
   formatLines(defs: string[]) {
     const lineLength = 60;
@@ -159,7 +145,6 @@ words you **meant** to type.
     });
     return formattedStrings;
   }
-
 
   formatParagraph(para: string, len: number) {
     const lines = Math.floor(para.length / len);
@@ -176,7 +161,6 @@ words you **meant** to type.
     }
     return newPara;
   }
-
 
   extractDefinitions(data: DefinitionData[]): [string[][], string[]] {
     const examples: string[] = [];
@@ -200,7 +184,6 @@ words you **meant** to type.
     return [definitions, examples.length ? examples : []];
   }
 
-
   private _getSense(field: SenseArray) {
     if (field[0] != 'sense') return undefined;
     const obj = field[1] as SenseObj;
@@ -215,14 +198,12 @@ words you **meant** to type.
     return sense;
   }
 
-
   private _getPseq(field: SenseArray) {
     if (field[0] != 'pseq') return undefined;
     const obj = field[1] as PseqObj[];
     // Return all definitions in a new Array
     return obj.map(v => v[1].dt[0][1]);
   }
-
 
   private _filterMarkup(definition: string) {
     let filtered =
@@ -241,6 +222,27 @@ words you **meant** to type.
     }
     return filtered;
   }
+
+}
+
+
+namespace Strings {
+  export const getHelp = () => (
+`**Get the Definition of a Word**
+If the \`<word>\` exists, it will use the Merriam Webster
+dictionary to define the \`<word>\` you provided. If it can't
+find the \`<word>\`, then it will return a list of possible
+words you **meant** to type.
+\`\`\`;define <word>\`\`\``
+  );
+
+  export const getShortWordLength = () => (
+`Sorry, but I can only define words longer than **3** characters.`
+  );
+
+  export const getDefineFailed = () => (
+`The DEFINE command has *failed* spectacularly.`
+  );
 
 }
 export = DefineCmd;
