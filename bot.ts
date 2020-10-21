@@ -1,4 +1,4 @@
-import { Client, DMChannel, GuildMember, Message, MessageEmbed, NewsChannel, TextChannel } from "discord.js";
+import { Client, GuildMember, Message, MessageEmbed } from "discord.js";
 import importFresh from "import-fresh";
 import { Command } from "./command";
 import CommandHandler from "./command-handler";
@@ -17,13 +17,13 @@ import HelpCmd from "./commands/help";
 
 
 
-type DiscordChannel = TextChannel|DMChannel|NewsChannel;
+// type DiscordChannel = TextChannel|DMChannel|NewsChannel;
 
 
 
 class Bot {
   private _commands   : Command[] = [];
-  private _cmdHandler : CommandHandler;
+  private _cmdHandler!: CommandHandler; // Set in _onSaiInit()
 
   // In order: matches alias, role, and channel mentions
   private _mentionEx = /<@!?&?#?\d+>/g;
@@ -66,10 +66,6 @@ class Bot {
 
   constructor(private _client: Client, private _resetCallback: () => void, reset = false) {
     this._client.on('message', this._messageHandler);
-    this._populateCommands();
-    this._cmdHandler =
-      new (importFresh('./command-handler.js') as typeof CommandHandler)(this._commands, this)
-    ;
     if (!reset)
       this._client.login(config.apiKeys.discord)
     ;
@@ -77,9 +73,17 @@ class Bot {
 
 
 
-  private _onSaiInit(resp: Error|null) {
-    //
-  }
+  private _onSaiInit(err: Error|null) {
+    if (err) {
+      console.error(err);
+      process.exit();
+    }
+
+    this._populateCommands();
+    this._cmdHandler =
+      new (importFresh('./command-handler.js') as typeof CommandHandler)(this._commands, this)
+    ;
+   }
 
 
   private async _onMessage(msg: Message) {
@@ -155,12 +159,10 @@ class Bot {
     this._resetCallback();
   }
 
-
   reloadCmdHandler() {
     this._populateCommands();
     this._cmdHandler = new CommandHandler(this._commands, this);
   }
-
 
   hasValidRole(member: GuildMember, role: Bot.Role) {
     if (member.id == config.bot.creatorId) {
@@ -171,14 +173,12 @@ class Bot {
     });
   }
 
-
   isBotMentioned() {
     const botId = `${config.bot.id}>`;
     if (!this.curMsg.content.match(this._mentionEx)) return false;
     if (!this.curMsg.content.includes(botId)) return false;
     return true;
   }
-
 
   setMessage(title: string, priority = -1, description: string) {
     return (
@@ -189,7 +189,6 @@ class Bot {
     );
   }
 
-
   sendMsg(description: string, title: string, color: string) {
     this.curMsg.channel.send(
       new this.Embed()
@@ -198,7 +197,6 @@ class Bot {
         .setColor(color)
     );
   }
-
 
   colorFromPriority(priority: Bot.MessagePriority) {
     const p = Bot.MessagePriority;
@@ -209,27 +207,26 @@ class Bot {
     return '#aaaaaa';
   }
 
-
+  /** Send low priority message. */
   sendLowMsg(content: string, title = '') {
     return void this.curChannel.send(
       this.setMessage(title, Bot.MessagePriority.LOW, content)
     );
   }
 
-
+  /** Send medium priority message. */
   sendMedMsg(content: string, title = '') {
     return void this.curChannel.send(
       this.setMessage(title, Bot.MessagePriority.MEDIUM, content)
     );
   }
 
-
+  /** Send high priority message. */
   sendHighMsg(content: string, title = '') {
     return void this.curChannel.send(
       this.setMessage(title, Bot.MessagePriority.HIGH, content)
     );
   }
-
 
   sendException(description: string, err: Error) {
     this.sendHighMsg(
