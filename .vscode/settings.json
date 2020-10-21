@@ -9,5 +9,11 @@
     "**/.hg": true,
     "**/CVS": true,
     "**/.DS_Store": true
-  }
+  },
+  "cSpell.words": [
+    "Mngr",
+    "cmdname",
+    "stringund",
+    "strund"
+  ]
 }

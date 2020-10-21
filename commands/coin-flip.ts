@@ -66,7 +66,6 @@ class CoinFlipCmd extends Command {
     );
   }
 
-
   private async _getRandomNumbers() {
     try {
       const resp = await this._rngService.post('', this._rngReqData);
