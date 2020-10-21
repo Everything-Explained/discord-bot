@@ -12,11 +12,8 @@ export abstract class Command {
   abstract get help(): string;
 
 
-  constructor(
-    public aliases: string[],
-    public role: Bot.Role,
-    bot: Bot
-  ) { this._bot = bot; }
+  constructor(public aliases: string[], public role: Bot.Role, bot: Bot)
+    { this._bot = bot; }
 
 
   protected abstract _instructions(...args: string[]): void;
