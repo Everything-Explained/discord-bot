@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "@noumenae/sai": "^2.0.4",
-    "axios": "^0.20.0",
+    "axios": "^0.21.1",
     "discord.js": "^12.3.1",
     "import-fresh": "^3.2.1",
     "source-map-support": "^0.5.19"
